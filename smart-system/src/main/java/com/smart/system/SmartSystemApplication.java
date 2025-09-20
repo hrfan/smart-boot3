@@ -1,5 +1,6 @@
 package com.smart.system;
 
+import com.smart.common.core.result.Result;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -47,9 +48,10 @@ public class SmartSystemApplication {
      * 
      * @return Hello World消息
      */
-    @GetMapping("/system/hello")
-    public String hello() {
-        int  u =  1/0;
-        return "Hello from Smart System!";
+    @GetMapping("/hello")
+    public Result hello() {
+//        int  u =  1/0;
+        int i = 1/0;
+        return Result.success("响应成功！",null);
     }
 }

@@ -1,8 +1,7 @@
 package com.smart.common.core.result;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 统一响应结果
@@ -32,14 +31,25 @@ public class Result<T> implements Serializable {
     /**
      * 响应时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime timestamp;
+    private Date timestamp;
+
+    /**
+     * 是否成功
+     */
+    private Boolean success;
+
+    /**
+     * 是否错误
+     */
+    private Boolean error;
 
     /**
      * 私有构造函数
      */
     private Result() {
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = new Date();
+        this.success = false;
+        this.error = true;
     }
 
     /**
@@ -52,6 +62,8 @@ public class Result<T> implements Serializable {
         Result<T> result = new Result<>();
         result.setCode(ResultCode.SUCCESS.getCode());
         result.setMessage(ResultCode.SUCCESS.getMessage());
+        result.setSuccess(true);
+        result.setError(false);
         return result;
     }
 
@@ -92,6 +104,8 @@ public class Result<T> implements Serializable {
         Result<T> result = new Result<>();
         result.setCode(ResultCode.ERROR.getCode());
         result.setMessage(ResultCode.ERROR.getMessage());
+        result.setSuccess(false);
+        result.setError(true);
         return result;
     }
 
@@ -180,11 +194,27 @@ public class Result<T> implements Serializable {
         this.data = data;
     }
 
-    public LocalDateTime getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
+    }
+
+    public Boolean getError() {
+        return error;
+    }
+
+    public void setError(Boolean error) {
+        this.error = error;
     }
 }
