@@ -1,0 +1,63 @@
+# Tomcat
+server:
+  port: 9000
+
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: smart-gateway
+  profiles:
+    # 环境配置
+    active: dev
+  # 暂时禁用Nacos（用于独立测试）
+  # Nacos配置中心配置
+  cloud:
+    nacos:
+      config:
+        # 配置中心地址
+        server-addr: 117.72.47.147:8848
+        username: nacos
+        password: 15256496504.q
+        # 配置文件格式
+        file-extension: yml
+        # 命名空间（可选）
+        # namespace: your-namespace-id
+        # 共享配置
+        shared-configs:
+          - data-id: smart-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+            group: DEFAULT_GROUP
+            refresh: true
+        # 配置加载失败时不中断启动
+        fail-fast: false
+        # 启用配置刷新
+        refresh-enabled: true
+      discovery:
+        # 服务注册地址
+        server-addr: 117.72.47.147:8848
+        username: nacos
+        password: 15256496504.q
+        # 命名空间（可选）
+        # namespace: your-namespace-id
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty: DEBUG
+    com.smart: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

@@ -1,0 +1,10 @@
+{
+  "id": "approval_1758292274813_nhav7hkdh",
+  "title": "Lombok编译问题修复需求文档",
+  "filePath": ".spec-workflow/specs/lombok-compilation-fix/requirements.md",
+  "type": "document",
+  "status": "pending",
+  "createdAt": "2025-09-19T14:31:14.813Z",
+  "category": "spec",
+  "categoryName": "lombok-compilation-fix"
+}
