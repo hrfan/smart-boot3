@@ -197,3 +197,7 @@ config/prod/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+
+# 过滤
+.spec-workflow

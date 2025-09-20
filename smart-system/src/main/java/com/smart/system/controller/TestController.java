@@ -1,15 +1,28 @@
 package com.smart.system.controller;
 
+import com.smart.common.core.result.Result;
+import com.smart.common.redis.service.DistributedLock;
+import com.smart.common.redis.service.DistributedLockService;
+import com.smart.common.redis.service.RedisService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 /**
  * 测试控制器
  * 用于测试系统模块的异常处理功能
- * 
+ *
  * @author smart-boot3
  * @since 1.0.0
  */
@@ -17,19 +30,113 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 public class TestController {
 
+    private static final Logger log = LoggerFactory.getLogger(TestController.class);
+
+
+    @Autowired
+    private DistributedLockService lockService;
+
+    @Autowired
+    private RedisService redisService;
+
+
     /**
      * 测试正常响应
-     * 
+     *
      * @return 成功消息
      */
-    @GetMapping("/success")
-    public String testSuccess() {
-        return "系统模块测试成功";
+    @GetMapping("/r1")
+    public Result testSuccess() {
+        String lockKey = "HRFAN";
+        Map<String, Object> result = new HashMap<>();
+        DistributedLock lock = null;
+
+        try {
+            log.info("{} ,尝试获取锁: {}", Thread.currentThread().getName(), lockKey);
+            lock = lockService.acquireLock(lockKey, 10, TimeUnit.SECONDS);
+
+            if (lock.isValid()) {
+                result.put("status", "锁获取成功");
+                result.put("lockKey", lock.getLockKey());
+                result.put("lockValue", lock.getLockValue());
+                result.put("expireTime", lock.getExpireTime());
+                result.put("ttl", lock.getRemainingTtl());
+
+                log.info("业务逻辑执行中... 模拟持有锁3秒");
+                Thread.sleep(10000);
+                // 模拟业务逻辑执行完成，释放锁
+                lock.unlock();
+
+            } else {
+                result.put("status", "锁获取失败");
+                result.put("lockKey", lock.getLockKey());
+                result.put("lockValue", lock.getLockValue());
+                result.put("message", "未能获取到有效锁，可能已被其他线程持有或Redis异常");
+            }
+        } catch (Exception e) {
+            log.error("测试基本锁功能时发生异常: {}", e.getMessage(), e);
+            return Result.error("测试基本锁功能失败: " + e.getMessage());
+        } finally {
+            if (lock != null) {
+                boolean unlocked = lock.unlock();
+                result.put("unlocked", unlocked);
+                log.info("锁释放结果: {}", unlocked);
+            }
+        }
+
+        return Result.success("基本锁测试完成", result);
+    }
+
+    @GetMapping("/r2")
+    public Result testSuccess2() {
+        String lockKey = "HRFAN";
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            log.info("尝试使用tryLock获取锁: {}", lockKey);
+            boolean success = lockService.tryLock(lockKey, 10, TimeUnit.SECONDS);
+
+            result.put("tryLockResult", success);
+            result.put("lockKey", lockKey);
+
+            if (success) {
+                result.put("status", "tryLock成功");
+                log.info("tryLock成功，模拟业务逻辑执行3秒...");
+                Thread.sleep(10000);
+
+                // 释放锁
+                DistributedLock lock = lockService.acquireLock(lockKey, 10, TimeUnit.SECONDS);
+                if (lock.isValid()) {
+                    boolean unlocked = lock.unlock();
+                    result.put("unlocked", unlocked);
+                }
+            } else {
+                result.put("status", "tryLock失败");
+                result.put("message", "锁可能已被其他线程持有");
+            }
+        } catch (Exception e) {
+            log.error("测试tryLock功能时发生异常: {}", e.getMessage(), e);
+            return Result.error("测试tryLock功能失败: " + e.getMessage());
+        }
+
+        return Result.success("tryLock测试完成", result);
+    }
+
+    @GetMapping("/redisBase")
+    public Result redisBase() {
+        String orderId = "order:lock:" + "123";
+        // 测试redis基础功能
+        redisService.set("order:lock:redisBase", orderId, 1, TimeUnit.MINUTES);
+        // 获取redis中的值
+        String redisOrderId = redisService.get("order:lock:redisBase", String.class);
+        log.info("redis中orderId: {}", redisOrderId);
+
+        return Result.success("获取 Redis 中的 orderId: " + redisOrderId);
     }
 
     /**
      * 测试认证异常
-     * 
+     *
      * @return 抛出认证异常
      */
     @GetMapping("/auth-error")
@@ -39,7 +146,7 @@ public class TestController {
 
     /**
      * 测试访问拒绝异常
-     * 
+     *
      * @return 抛出访问拒绝异常
      */
     @GetMapping("/access-denied")
@@ -49,7 +156,7 @@ public class TestController {
 
     /**
      * 测试通用异常
-     * 
+     *
      * @return 抛出通用异常
      */
     @GetMapping("/generic-error")
