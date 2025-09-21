@@ -1,9 +1,13 @@
 package com.smart.system.controller;
 
 import com.smart.common.core.result.Result;
+import com.smart.common.database.bulk.SmartJdbcBulkInsert;
 import com.smart.common.redis.service.DistributedLock;
 import com.smart.common.redis.service.DistributedLockService;
 import com.smart.common.redis.service.RedisService;
+import com.smart.system.role.entiy.SmartRole;
+import com.smart.system.role.service.SmartRoleService;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,6 +41,12 @@ public class TestController {
     @Autowired
     private RedisService redisService;
 
+    @Autowired
+    private SmartRoleService smartRoleService;
+
+
+    @Resource
+    private SmartJdbcBulkInsert smartJdbcBulkInsert;
 
     /**
      * 测试正常响应
@@ -120,6 +128,53 @@ public class TestController {
         }
 
         return Result.success("tryLock测试完成", result);
+    }
+
+    @GetMapping("/r3")
+    public Result testR3() {
+        SmartRole smartRole = new SmartRole();
+        smartRole.setId(UUID.randomUUID().toString());
+        smartRole.setRoleName("ROLE_ADMIN");
+        smartRole.setRoleKey("ROLE_ADMIN");
+
+        boolean b = smartRoleService.insertRole(smartRole);
+        if (b) {
+            return Result.success("添加成功");
+        }
+        return Result.error("添加失败");
+    }
+
+
+
+    @GetMapping("/r4")
+    public Result testR4() {
+
+
+
+        List<SmartRole> roleList =  new ArrayList<>();
+
+        for (int i = 0; i < 300000; i++) {
+            SmartRole smartRole = new SmartRole();
+            smartRole.setId(UUID.randomUUID().toString());
+            smartRole.setRoleName("ROLE_ADMIN_" + i);
+            smartRole.setRoleKey("ROLE_ADMIN");
+            smartRole.setRoleSort(i);
+            smartRole.setRemark("测试");
+            roleList.add(smartRole);
+        }
+        try {
+            log.info("开始执行快速入库");
+
+            int i = smartJdbcBulkInsert.fastImport(roleList);
+
+            if (i > 0) {
+                return Result.success("添加成功");
+            }
+        } catch (Exception e) {
+            log.error("测试快速入库功能时发生异常: {}", e.getMessage(), e);
+            return Result.error("测试快速入库功能失败: " + e.getMessage());
+        }
+        return Result.error("添加失败");
     }
 
     @GetMapping("/redisBase")

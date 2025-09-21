@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smart.system.role.mapper.SmartRoleMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.smart.system.role.entiy.SmartRole">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="role_name" property="roleName" jdbcType="VARCHAR"/>
+        <result column="role_key" property="roleKey" jdbcType="VARCHAR"/>
+        <result column="role_sort" property="roleSort" jdbcType="INTEGER"/>
+        <result column="data_scope" property="dataScope" jdbcType="CHAR"/>
+        <result column="menu_check_strictly" property="menuCheckStrictly" jdbcType="TINYINT"/>
+        <result column="dept_check_strictly" property="deptCheckStrictly" jdbcType="TINYINT"/>
+        <result column="status" property="status" jdbcType="CHAR"/>
+        <result column="del_flag" property="delFlag" jdbcType="CHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段列表 -->
+    <sql id="Base_Column_List">
+        id, role_name, role_key, role_sort, data_scope, menu_check_strictly, dept_check_strictly,
+        status, del_flag, create_by, create_time, update_by, update_time, remark, tenant_id
+    </sql>
+
+    <!-- 根据角色名称查询角色信息 -->
+    <select id="selectByRoleName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM smart_role
+        WHERE role_name = #{roleName}
+        AND del_flag = '0'
+    </select>
+
+    <!-- 根据角色权限字符串查询角色信息 -->
+    <select id="selectByRoleKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM smart_role
+        WHERE role_key = #{roleKey}
+        AND del_flag = '0'
+    </select>
+
+    <!-- 根据用户ID查询角色列表 -->
+    <select id="selectRolesByUserId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT DISTINCT
+        r.id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.menu_check_strictly, r.dept_check_strictly,
+        r.status, r.del_flag, r.create_by, r.create_time, r.update_by, r.update_time, r.remark, r.tenant_id
+        FROM smart_role r
+        INNER JOIN sys_user_role ur ON r.id = ur.role_id
+        WHERE ur.user_id = #{userId}
+        AND r.del_flag = '0'
+        AND r.status = '0'
+        ORDER BY r.role_sort ASC
+    </select>
+
+    <!-- 查询所有启用的角色 -->
+    <select id="selectEnabledRoles" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM smart_role
+        WHERE status = '0'
+        AND del_flag = '0'
+        ORDER BY role_sort ASC
+    </select>
+
+    <!-- 根据租户ID查询角色列表 -->
+    <select id="selectRolesByTenantId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM smart_role
+        WHERE tenant_id = #{tenantId}
+        AND del_flag = '0'
+        ORDER BY role_sort ASC
+    </select>
+
+    <!-- 检查角色名称是否存在 -->
+    <select id="checkRoleNameExists" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM smart_role
+        WHERE role_name = #{roleName}
+        AND del_flag = '0'
+        <if test="excludeId != null and excludeId != ''">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 检查角色权限字符串是否存在 -->
+    <select id="checkRoleKeyExists" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM smart_role
+        WHERE role_key = #{roleKey}
+        AND del_flag = '0'
+        <if test="excludeId != null and excludeId != ''">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <!-- 批量删除角色（逻辑删除） -->
+    <update id="deleteRolesByIds" parameterType="java.util.List">
+        UPDATE smart_role
+        SET del_flag = '2',
+            update_time = NOW()
+        WHERE id IN
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </update>
+
+    <!-- 更新角色状态 -->
+    <update id="updateRoleStatus">
+        UPDATE smart_role
+        SET status = #{status},
+            update_time = NOW()
+        WHERE id = #{roleId}
+    </update>
+
+    <!-- 根据条件查询角色列表（用于分页查询） -->
+    <select id="selectRoleList" parameterType="com.smart.system.role.entiy.SmartRole" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM smart_role
+        WHERE del_flag = '0'
+        <if test="roleName != null and roleName != ''">
+            AND role_name LIKE CONCAT('%', #{roleName}, '%')
+        </if>
+        <if test="roleKey != null and roleKey != ''">
+            AND role_key LIKE CONCAT('%', #{roleKey}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="tenantId != null and tenantId != ''">
+            AND tenant_id = #{tenantId}
+        </if>
+        ORDER BY role_sort ASC, create_time DESC
+    </select>
+
+    <!-- 根据条件统计角色数量 -->
+    <select id="countRoleList" parameterType="com.smart.system.role.entiy.SmartRole" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM smart_role
+        WHERE del_flag = '0'
+        <if test="roleName != null and roleName != ''">
+            AND role_name LIKE CONCAT('%', #{roleName}, '%')
+        </if>
+        <if test="roleKey != null and roleKey != ''">
+            AND role_key LIKE CONCAT('%', #{roleKey}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="tenantId != null and tenantId != ''">
+            AND tenant_id = #{tenantId}
+        </if>
+    </select>
+
+</mapper>
