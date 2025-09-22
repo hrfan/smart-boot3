@@ -7,6 +7,8 @@ import com.smart.common.redis.service.DistributedLockService;
 import com.smart.common.redis.service.RedisService;
 import com.smart.system.role.entiy.SmartRole;
 import com.smart.system.role.service.SmartRoleService;
+import com.smart.system.user.entity.SmartUser;
+import com.smart.system.user.service.SmartUserService;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,9 @@ public class TestController {
 
     @Resource
     private SmartJdbcBulkInsert smartJdbcBulkInsert;
+
+    @Resource
+    private SmartUserService smartUserService;
 
     /**
      * 测试正常响应
@@ -175,6 +180,13 @@ public class TestController {
             return Result.error("测试快速入库功能失败: " + e.getMessage());
         }
         return Result.error("添加失败");
+    }
+
+    @GetMapping("/r5")
+    public Result<List<SmartUser>> getUserList() {
+        log.info("获取用户列表");
+        List<SmartUser> users = smartUserService.list();
+        return Result.success(users);
     }
 
     @GetMapping("/redisBase")
