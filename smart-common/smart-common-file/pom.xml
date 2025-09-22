@@ -11,10 +11,10 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>smart-common-dto</artifactId>
+    <artifactId>smart-common-file</artifactId>
     <packaging>jar</packaging>
-    <name>Smart Common Dto</name>
-    <description>DTO 模块</description>
+    <name>Smart Common File</name>
+    <description>文件组件模块</description>
 
     <dependencies>
         <!-- 核心模块 -->
@@ -23,7 +23,13 @@
             <artifactId>smart-common-core</artifactId>
         </dependency>
 
-        <!-- 引入 lombok 依赖 -->
+
+        <!-- https://mvnrepository.com/artifact/io.minio/minio -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

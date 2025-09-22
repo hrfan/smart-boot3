@@ -23,5 +23,6 @@
         <module>smart-common-database</module>
         <module>smart-common-ai</module>
         <module>smart-common-dto</module>
+        <module>smart-common-file</module>
     </modules>
 </project>

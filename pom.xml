@@ -52,6 +52,8 @@
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <!-- Druid版本 -->
         <druid.version>1.2.20</druid.version>
+        <!-- minio 版本  -->
+        <minio.version>8.5.17</minio.version>
     </properties>
 
     <modules>
@@ -240,6 +242,15 @@
                 <artifactId>okhttp</artifactId>
                 <version>4.12.0</version>
             </dependency>
+
+
+            <!-- minio 客户端 -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+
 
 
         </dependencies>
