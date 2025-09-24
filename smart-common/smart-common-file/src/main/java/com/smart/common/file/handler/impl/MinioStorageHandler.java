@@ -2,7 +2,7 @@ package com.smart.common.file.handler.impl;
 
 
 
-import com.smart.common.file.config.MinioInfo;
+import com.smart.common.file.config.FileStorageProperties;
 import com.smart.common.file.exception.FileStorageException;
 import com.smart.common.file.handler.FileStorageHandler;
 
@@ -35,8 +35,9 @@ public class MinioStorageHandler implements FileStorageHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(MinioStorageHandler.class);
     
+
     @Autowired
-    private MinioInfo minioInfo;
+    private FileStorageProperties fileStorageProperties;
     
     private MinioClient minioClient;
     
@@ -44,14 +45,14 @@ public class MinioStorageHandler implements FileStorageHandler {
     public void init() {
         try {
             minioClient = MinioClient.builder()
-                    .endpoint(minioInfo.getEndpoint())
-                    .credentials(minioInfo.getAccessKey(), minioInfo.getSecretKey())
+                    .endpoint(fileStorageProperties.getMinio().getEndpoint())
+                    .credentials(fileStorageProperties.getMinio().getAccessKey(), fileStorageProperties.getMinio().getSecretKey())
                     .build();
             
-            logger.info("MinIO存储处理器初始化成功，端点: {}", minioInfo.getEndpoint());
+            logger.info("MinIO存储处理器初始化成功，端点: {}", fileStorageProperties.getMinio().getEndpoint());
             
             // 确保默认存储桶存在
-            ensureBucketExists(minioInfo.getBucket());
+            ensureBucketExists(fileStorageProperties.getMinio().getBucket());
             
         } catch (Exception e) {
             logger.error("MinIO存储处理器初始化失败: {}", e.getMessage(), e);
@@ -75,7 +76,7 @@ public class MinioStorageHandler implements FileStorageHandler {
         
         try {
             // 确保存储桶存在
-            ensureBucketExists(minioInfo.getBucket());
+            ensureBucketExists(fileStorageProperties.getMinio().getBucket());
             
             // 生成唯一文件名（使用原始文件名生成）
             String uniqueFileName = generateUniqueFileName(originalFileName);
@@ -83,7 +84,7 @@ public class MinioStorageHandler implements FileStorageHandler {
             // 执行上传
             minioClient.putObject(
                 PutObjectArgs.builder()
-                    .bucket(minioInfo.getBucket())
+                    .bucket(fileStorageProperties.getMinio().getBucket())
                     .object(uniqueFileName)
                     .stream(file.getInputStream(), file.getSize(), -1)
                     .contentType(file.getContentType())
@@ -91,7 +92,7 @@ public class MinioStorageHandler implements FileStorageHandler {
             );
             
             // 生成访问URL
-            String fileUrl = generateFileUrl(minioInfo.getBucket(), uniqueFileName);
+            String fileUrl = generateFileUrl(fileStorageProperties.getMinio().getBucket(), uniqueFileName);
             
             logger.info("MinIO文件上传成功: {}, 原始文件名: {}, URL: {}", uniqueFileName, originalFileName, fileUrl);
             return fileUrl;
@@ -111,7 +112,7 @@ public class MinioStorageHandler implements FileStorageHandler {
         
         try {
             // 确保存储桶存在
-            ensureBucketExists(minioInfo.getBucket());
+            ensureBucketExists(fileStorageProperties.getMinio().getBucket());
             
             // 生成唯一文件名（使用原始文件名生成）
             String uniqueFileName = generateUniqueFileName(originalFileName);
@@ -119,7 +120,7 @@ public class MinioStorageHandler implements FileStorageHandler {
             // 执行上传
             minioClient.putObject(
                 PutObjectArgs.builder()
-                    .bucket(minioInfo.getBucket())
+                    .bucket(fileStorageProperties.getMinio().getBucket())
                     .object(uniqueFileName)
                     .stream(file.getInputStream(), file.getSize(), -1)
                     .contentType(file.getContentType())
@@ -127,10 +128,10 @@ public class MinioStorageHandler implements FileStorageHandler {
             );
             
             // 生成访问URL
-            String fileUrl = generateFileUrl(minioInfo.getBucket(), uniqueFileName);
+            String fileUrl = generateFileUrl(fileStorageProperties.getMinio().getBucket(), uniqueFileName);
 
             // 获取文件存储真实路径
-            String filePath = String.format("%s/%s", minioInfo.getBucket(), uniqueFileName);
+            String filePath = String.format("%s/%s", fileStorageProperties.getMinio().getBucket(), uniqueFileName);
             
             logger.info("MinIO文件上传成功: {}, 原始文件名: {}, URL: {}", uniqueFileName, originalFileName, fileUrl);
             
@@ -141,7 +142,7 @@ public class MinioStorageHandler implements FileStorageHandler {
             result.setOriginalFileName(originalFileName);
             result.setFileSize(file.getSize());
             result.setContentType(file.getContentType());
-            result.setBucketName(minioInfo.getBucket());
+            result.setBucketName(fileStorageProperties.getMinio().getBucket());
             result.setUploadBy("system");
             
             return result;
@@ -161,7 +162,7 @@ public class MinioStorageHandler implements FileStorageHandler {
         
         try {
             // 确保存储桶存在
-            ensureBucketExists(minioInfo.getBucket());
+            ensureBucketExists(fileStorageProperties.getMinio().getBucket());
             
             // 生成唯一文件名
             String uniqueFileName = generateUniqueFileName(fileName);
@@ -169,7 +170,7 @@ public class MinioStorageHandler implements FileStorageHandler {
             // 执行上传
             minioClient.putObject(
                 PutObjectArgs.builder()
-                    .bucket(minioInfo.getBucket())
+                    .bucket(fileStorageProperties.getMinio().getBucket())
                     .object(uniqueFileName)
                     .stream(new java.io.ByteArrayInputStream(fileData), fileData.length, -1)
                     .contentType(contentType)
@@ -177,7 +178,7 @@ public class MinioStorageHandler implements FileStorageHandler {
             );
             
             // 生成访问URL
-            String fileUrl = generateFileUrl(minioInfo.getBucket(), uniqueFileName);
+            String fileUrl = generateFileUrl(fileStorageProperties.getMinio().getBucket(), uniqueFileName);
             
             logger.info("MinIO字节数组文件上传成功: {}, 大小: {} bytes, URL: {}", uniqueFileName, fileData.length, fileUrl);
             return fileUrl;
@@ -195,7 +196,7 @@ public class MinioStorageHandler implements FileStorageHandler {
         try {
             minioClient.removeObject(
                 RemoveObjectArgs.builder()
-                    .bucket(minioInfo.getBucket())
+                    .bucket(fileStorageProperties.getMinio().getBucket())
                     .object(fileName)
                     .build()
             );
@@ -216,7 +217,7 @@ public class MinioStorageHandler implements FileStorageHandler {
         try {
             InputStream inputStream = minioClient.getObject(
                 GetObjectArgs.builder()
-                    .bucket(minioInfo.getBucket())
+                    .bucket(fileStorageProperties.getMinio().getBucket())
                     .object(fileName)
                     .build()
             );
@@ -240,7 +241,7 @@ public class MinioStorageHandler implements FileStorageHandler {
         try {
             minioClient.statObject(
                 StatObjectArgs.builder()
-                    .bucket(minioInfo.getBucket())
+                    .bucket(fileStorageProperties.getMinio().getBucket())
                     .object(fileName)
                     .build()
             );
@@ -259,7 +260,7 @@ public class MinioStorageHandler implements FileStorageHandler {
         validateFileName(fileName);
         
         try {
-            String fileUrl = generateFileUrl(minioInfo.getBucket(), fileName);
+            String fileUrl = generateFileUrl(fileStorageProperties.getMinio().getBucket(), fileName);
             logger.debug("获取MinIO文件URL: {} -> {}", fileName, fileUrl);
             return fileUrl;
             
@@ -326,7 +327,7 @@ public class MinioStorageHandler implements FileStorageHandler {
             return url;
         } catch (Exception e) {
             logger.warn("生成MinIO预签名URL失败，使用简单URL: {}", e.getMessage());
-            String endpoint = minioInfo.getEndpoint();
+            String endpoint = fileStorageProperties.getMinio().getEndpoint();
             if (endpoint.endsWith("/")) {
                 endpoint = endpoint.substring(0, endpoint.length() - 1);
             }
