@@ -2,6 +2,10 @@ package com.smart.system.controller;
 
 import com.smart.common.core.result.Result;
 import com.smart.common.database.bulk.SmartJdbcBulkInsert;
+import com.smart.common.mail.common.MailConfig;
+import com.smart.common.mail.common.MailConfigLoader;
+import com.smart.common.mail.sender.MailSender;
+import com.smart.common.mail.sender.MailSenderFactory;
 import com.smart.common.redis.service.DistributedLock;
 import com.smart.common.redis.service.DistributedLockService;
 import com.smart.common.redis.service.RedisService;
@@ -180,6 +184,44 @@ public class TestController {
             return Result.error("测试快速入库功能失败: " + e.getMessage());
         }
         return Result.error("添加失败");
+    }
+
+    @GetMapping("/r6")
+    public Result testR6() {
+        Result.success("测试成功");
+        // 模拟从 YAML 配置中加载配置
+        Map<String, Object> configMap = new HashMap<>();
+        configMap.put("type", "163");
+        configMap.put("host", "smtp.163.com");
+        configMap.put("port", 994);
+        configMap.put("username", "hrfanpig@163.com");
+        configMap.put("password", "UFajGyFtBiQC7cUS");
+        configMap.put("sslEnabled", true);
+        configMap.put("defaultFrom", "hrfanpig@163.com");
+        configMap.put("timeout", 30000);
+
+        // 使用配置加载器加载配置
+        MailConfig config = MailConfigLoader.loadFromMap(configMap);
+
+        // 验证配置
+        if (!MailConfigLoader.validateConfig(config)) {
+            log.error("邮件配置验证失败");
+            return Result.error("邮件配置验证失败");
+        }
+
+        // 创建邮件发送器
+        MailSender sender = MailSenderFactory.createMailSender(config.getType(), config);
+
+        // 发送简单邮件
+        log.info("开始发送邮件测试...");
+        boolean success = sender.sendSimpleMail("1372302825@qq.com", "测试邮件", "这是一封测试邮件。");
+        log.info("简单邮件发送结果：" + (success ? "成功" : "失败"));
+        
+        if (success) {
+            return Result.success("邮件发送测试成功！");
+        } else {
+            return Result.error("邮件发送测试失败！");
+        }
     }
 
     @GetMapping("/r5")

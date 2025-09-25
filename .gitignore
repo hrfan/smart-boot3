@@ -202,3 +202,5 @@ Thumbs.db
 # 过滤
 .spec-workflow
 *.md
+*.yml
+MailTest.class
