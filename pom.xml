@@ -9,7 +9,7 @@
     <artifactId>smart-boot3</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>Smart Boot3</name>
+    <name>smart-boot3</name>
     <description>基于SpringBoot3+SpringCloud的微服务脚手架</description>
 
     <properties>

@@ -13,7 +13,7 @@
 
     <artifactId>smart-common</artifactId>
     <packaging>pom</packaging>
-    <name>Smart Common</name>
+    <name>smart-common</name>
     <description>公共模块</description>
 
     <modules>
@@ -24,5 +24,6 @@
         <module>smart-common-ai</module>
         <module>smart-common-dto</module>
         <module>smart-common-file</module>
+        <module>smart-common-mail</module>
     </modules>
 </project>

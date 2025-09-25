@@ -201,3 +201,4 @@ Thumbs.db
 
 # 过滤
 .spec-workflow
+*.md

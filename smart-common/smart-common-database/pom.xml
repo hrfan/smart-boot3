@@ -13,7 +13,7 @@
 
     <artifactId>smart-common-database</artifactId>
     <packaging>jar</packaging>
-    <name>Smart Common Database</name>
+    <name>smart-common-database</name>
     <description>数据库组件模块</description>
 
     <dependencies>

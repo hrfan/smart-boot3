@@ -13,7 +13,7 @@
 
     <artifactId>smart-gateway</artifactId>
     <packaging>jar</packaging>
-    <name>Smart Gateway</name>
+    <name>smart-gateway</name>
     <description>API网关</description>
 
     <dependencies>

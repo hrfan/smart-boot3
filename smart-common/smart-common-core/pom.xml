@@ -13,7 +13,7 @@
 
     <artifactId>smart-common-core</artifactId>
     <packaging>jar</packaging>
-    <name>Smart Common Core</name>
+    <name>smart-common-core</name>
     <description>核心工具类模块</description>
 
     <dependencies>

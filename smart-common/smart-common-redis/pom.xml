@@ -13,7 +13,7 @@
 
     <artifactId>smart-common-redis</artifactId>
     <packaging>jar</packaging>
-    <name>Smart Common Redis</name>
+    <name>smart-common-redis</name>
     <description>Redis组件模块</description>
 
     <dependencies>

@@ -13,7 +13,7 @@
 
     <artifactId>smart-common-ai</artifactId>
     <packaging>jar</packaging>
-    <name>Smart Common AI</name>
+    <name>smart-common-ai</name>
     <description>AI组件模块</description>
 
     <dependencies>

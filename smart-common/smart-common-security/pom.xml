@@ -13,7 +13,7 @@
 
     <artifactId>smart-common-security</artifactId>
     <packaging>jar</packaging>
-    <name>Smart Common Security</name>
+    <name>smart-common-security</name>
     <description>安全组件模块</description>
 
     <dependencies>

@@ -13,7 +13,7 @@
 
     <artifactId>smart-common-file</artifactId>
     <packaging>jar</packaging>
-    <name>Smart Common File</name>
+    <name>smart-common-file</name>
     <description>文件组件模块</description>
 
     <dependencies>

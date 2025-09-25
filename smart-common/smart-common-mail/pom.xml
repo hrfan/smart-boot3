@@ -11,10 +11,10 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>smart-common-dto</artifactId>
+    <artifactId>smart-common-mail</artifactId>
     <packaging>jar</packaging>
-    <name>smart-common-dto</name>
-    <description>DTO 模块</description>
+    <name>smart-common-mail</name>
+    <description>邮件模块</description>
 
     <dependencies>
         <!-- 核心模块 -->
@@ -23,11 +23,13 @@
             <artifactId>smart-common-core</artifactId>
         </dependency>
 
-        <!-- 引入 lombok 依赖 -->
+
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
 
     </dependencies>
 </project>
