@@ -2,10 +2,12 @@ package com.smart.common.mail.sender;
 
 import com.smart.common.mail.base.BaseMailSender;
 import com.smart.common.mail.common.MailConfig;
+import com.smart.common.mail.common.AttachmentData;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.io.File;
 
 /**
  * 网易163邮件发送实现类
@@ -20,6 +22,32 @@ public class NetEaseMailSender extends BaseMailSender {
 
     @Override
     protected boolean performSendMail(String to, String[] cc, String[] bcc, String subject, String content, boolean isAnonymous, String[] filePaths, boolean isHtml) {
+        // 将文件路径转换为AttachmentData数组
+        if (filePaths != null && filePaths.length > 0) {
+            AttachmentData[] attachments = new AttachmentData[filePaths.length];
+            for (int i = 0; i < filePaths.length; i++) {
+                attachments[i] = new AttachmentData(filePaths[i]);
+            }
+            return performSendMailWithAttachments(to, cc, bcc, subject, content, isAnonymous, attachments, isHtml);
+        } else {
+            return performSendMailWithAttachments(to, cc, bcc, subject, content, isAnonymous, null, isHtml);
+        }
+    }
+
+
+    /**
+     * 执行邮件发送的具体逻辑，支持AttachmentData
+     * @param to 收件人地址
+     * @param cc 抄送人地址数组
+     * @param bcc 密送人地址数组
+     * @param subject 邮件主题
+     * @param content 邮件内容
+     * @param isAnonymous 是否匿名发送
+     * @param attachments 附件数据数组
+     * @param isHtml 是否为HTML格式
+     * @return 是否发送成功
+     */
+    protected boolean performSendMailWithAttachments(String to, String[] cc, String[] bcc, String subject, String content, boolean isAnonymous, AttachmentData[] attachments, boolean isHtml) {
         logger.info("通过网易163向 " + to + " 发送邮件，主题：" + subject);
         
         // 网易邮箱专用SMTP配置
@@ -87,7 +115,7 @@ public class NetEaseMailSender extends BaseMailSender {
             message.setSubject(subject, "UTF-8");
 
             // 设置内容和附件
-            if (filePaths != null && filePaths.length > 0) {
+            if (attachments != null && attachments.length > 0) {
                 // 创建多部分消息
                 Multipart multipart = new MimeMultipart();
 
@@ -101,16 +129,28 @@ public class NetEaseMailSender extends BaseMailSender {
                 multipart.addBodyPart(textPart);
 
                 // 添加附件部分
-                for (String filePath : filePaths) {
-                    java.io.File file = new java.io.File(filePath);
-                    if (file.exists()) {
-                        BodyPart attachmentPart = new MimeBodyPart();
-                        attachmentPart.setDataHandler(new jakarta.activation.DataHandler(new jakarta.activation.FileDataSource(file)));
-                        attachmentPart.setFileName(MimeUtility.encodeText(file.getName(), "UTF-8", "B"));
-                        multipart.addBodyPart(attachmentPart);
-                    } else {
-                        logger.warning("附件文件不存在：" + filePath);
+                for (AttachmentData attachment : attachments) {
+                    BodyPart attachmentPart = new MimeBodyPart();
+                    
+                    if (attachment.isByteData()) {
+                        // 处理byte流附件
+                        attachmentPart.setDataHandler(new jakarta.activation.DataHandler(
+                            new jakarta.mail.util.ByteArrayDataSource(attachment.getData(), attachment.getContentType())
+                        ));
+                        attachmentPart.setFileName(MimeUtility.encodeText(attachment.getFileName(), "UTF-8", "B"));
+                    } else if (attachment.isFilePath()) {
+                        // 处理文件路径附件
+                        File file = new File(attachment.getFilePath());
+                        if (file.exists()) {
+                            attachmentPart.setDataHandler(new jakarta.activation.DataHandler(new jakarta.activation.FileDataSource(file)));
+                            attachmentPart.setFileName(MimeUtility.encodeText(attachment.getFileName(), "UTF-8", "B"));
+                        } else {
+                            logger.warning("附件文件不存在：" + attachment.getFilePath());
+                            continue;
+                        }
                     }
+                    
+                    multipart.addBodyPart(attachmentPart);
                 }
 
                 // 设置消息内容为多部分

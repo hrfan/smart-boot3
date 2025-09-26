@@ -47,7 +47,6 @@
         <dependency>
             <groupId>com.smart</groupId>
             <artifactId>smart-common-mail</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
 

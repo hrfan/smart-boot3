@@ -118,6 +118,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.smart</groupId>
+                <artifactId>smart-common-mail</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- MyBatis Plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>

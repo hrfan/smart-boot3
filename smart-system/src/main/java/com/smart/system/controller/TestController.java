@@ -4,6 +4,7 @@ import com.smart.common.core.result.Result;
 import com.smart.common.database.bulk.SmartJdbcBulkInsert;
 import com.smart.common.mail.common.MailConfig;
 import com.smart.common.mail.common.MailConfigLoader;
+import com.smart.common.mail.common.AttachmentData;
 import com.smart.common.mail.sender.MailSender;
 import com.smart.common.mail.sender.MailSenderFactory;
 import com.smart.common.redis.service.DistributedLock;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -187,7 +189,7 @@ public class TestController {
     }
 
     @GetMapping("/r6")
-    public Result testR6() {
+    public Result testR6() throws UnsupportedEncodingException {
         Result.success("测试成功");
         // 模拟从 YAML 配置中加载配置
         Map<String, Object> configMap = new HashMap<>();
@@ -212,15 +214,66 @@ public class TestController {
         // 创建邮件发送器
         MailSender sender = MailSenderFactory.createMailSender(config.getType(), config);
 
+
+        String rce = "1372302825@qq.com";
         // 发送简单邮件
         log.info("开始发送邮件测试...");
-        boolean success = sender.sendSimpleMail("1372302825@qq.com", "测试邮件", "这是一封测试邮件。");
+        boolean success = sender.sendSimpleMail(rce, "测试是否正常轰炸邮件", "这是一封测试是否正常轰炸邮件。");
         log.info("简单邮件发送结果：" + (success ? "成功" : "失败"));
+
+
+        // 发送带抄送的邮件
+        String[] cc = {rce, "207259515@qq.com"};
+        success = sender.sendSimpleMailWithCC(rce, cc, "测试是否正常轰炸邮件带抄送", "这是一封带抄送的测试是否正常轰炸邮件。");
+        log.info("带抄送邮件发送结果：" + (success ? "成功" : "失败"));
+
+        // 发送匿名邮件
+        success = sender.sendAnonymousSimpleMail(rce, "匿名测试是否正常轰炸邮件", "这是一封匿名测试是否正常轰炸邮件。");
+        log.info("匿名邮件发送结果：" + (success ? "成功" : "失败"));
+
+        // 发送HTML邮件
+        String htmlContent = "<h1>HTML邮件测试是否正常轰炸</h1><p>这是一封HTML格式的测试是否正常轰炸邮件。</p>";
+        success = sender.sendHtmlMail(rce, "HTML测试是否正常轰炸邮件", htmlContent);
+        log.info("HTML邮件发送结果：" + (success ? "成功" : "失败"));
+
+        // 发送带附件的邮件
+        success = sender.sendAttachmentMail(rce, "带附件测试是否正常轰炸邮件", "这是一封带附件的测试是否正常轰炸邮件。", "/Users/fanhaoran/代码/开源框架/smart-common-mail_副本/pom.xml");
+        log.info("带附件邮件发送结果：" + (success ? "成功" : "失败"));
+
+        // 测试byte流附件发送
+        log.info("开始测试byte流附件发送...");
+        
+        // 创建测试文本文件的byte流
+        String testContent = "这是一个测试文件的内容\n包含中文和英文\nTest file content with Chinese and English";
+        byte[] testBytes = testContent.getBytes("UTF-8");
+        AttachmentData textAttachment = new AttachmentData("test.txt", testBytes, "text/plain; charset=UTF-8");
+        
+        // 发送带byte流附件的邮件
+        success = sender.sendByteAttachmentMail(rce, "byte流附件测试邮件", "这是一封带byte流附件的测试邮件。", textAttachment);
+        log.info("byte流附件邮件发送结果：" + (success ? "成功" : "失败"));
+        
+        // 创建测试HTML文件的byte流
+        String htmlContentByte = "<html><body><h1>测试HTML文件</h1><p>这是一个HTML格式的测试文件。</p></body></html>";
+        byte[] htmlBytes = htmlContentByte.getBytes("UTF-8");
+        AttachmentData htmlAttachment = new AttachmentData("test.html", htmlBytes, "text/html; charset=UTF-8");
+        
+        // 发送HTML格式带byte流附件的邮件
+        success = sender.sendHtmlByteAttachmentMail(rce, "HTML格式byte流附件测试邮件", "<h2>HTML邮件内容</h2><p>这是一封HTML格式的邮件，带有byte流附件。</p>", htmlAttachment);
+        log.info("HTML格式byte流附件邮件发送结果：" + (success ? "成功" : "失败"));
+        
+        // 测试多个byte流附件
+        AttachmentData[] multipleAttachments = {
+            new AttachmentData("file1.txt", "第一个文件内容".getBytes("UTF-8"), "text/plain; charset=UTF-8"),
+            new AttachmentData("file2.txt", "第二个文件内容".getBytes("UTF-8"), "text/plain; charset=UTF-8")
+        };
+        
+        success = sender.sendByteAttachmentMail(rce, "多个byte流附件测试邮件", "这是一封带有多个byte流附件的测试邮件。", multipleAttachments);
+        log.info("多个byte流附件邮件发送结果：" + (success ? "成功" : "失败"));
         
         if (success) {
-            return Result.success("邮件发送测试成功！");
+            return Result.success("邮件发送测试是否正常轰炸成功！包括byte流附件功能测试完成！");
         } else {
-            return Result.error("邮件发送测试失败！");
+            return Result.error("邮件发送测试是否正常轰炸失败！");
         }
     }
 
