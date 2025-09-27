@@ -39,6 +39,12 @@
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
 
+        <!-- PostgreSQL驱动 -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
         <!-- Druid连接池 -->
         <dependency>
             <groupId>com.alibaba</groupId>
