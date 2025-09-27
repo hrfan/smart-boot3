@@ -36,6 +36,8 @@
         <jackson.version>2.15.2</jackson.version>
         <!-- MySQL驱动版本 -->
         <mysql.version>8.0.33</mysql.version>
+        <!-- PostgreSQL驱动版本 -->
+        <postgresql.version>42.6.0</postgresql.version>
         <!-- Redis版本 -->
         <jedis.version>4.4.3</jedis.version>
         <!-- RabbitMQ版本 -->
@@ -192,6 +194,14 @@
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>${jedis.version}</version>
+            </dependency>
+
+
+            <!-- PostgreSQL驱动 -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
             </dependency>
 
             <!-- RabbitMQ -->

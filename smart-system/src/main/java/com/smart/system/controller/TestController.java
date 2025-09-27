@@ -163,7 +163,7 @@ public class TestController {
 
         List<SmartRole> roleList =  new ArrayList<>();
 
-        for (int i = 0; i < 300000; i++) {
+        for (int i = 0; i < 20; i++) {
             SmartRole smartRole = new SmartRole();
             smartRole.setId(UUID.randomUUID().toString());
             smartRole.setRoleName("ROLE_ADMIN_" + i);
@@ -173,6 +173,7 @@ public class TestController {
             roleList.add(smartRole);
         }
         try {
+            // 指定数据库对应模式 ?currentSchema=smart_system
             log.info("开始执行快速入库");
 
             int i = smartJdbcBulkInsert.fastImport(roleList);
@@ -182,7 +183,7 @@ public class TestController {
             }
         } catch (Exception e) {
             log.error("测试快速入库功能时发生异常: {}", e.getMessage(), e);
-            return Result.error("测试快速入库功能失败: " + e.getMessage());
+            throw new RuntimeException("测试快速入库功能失败: " + e.getMessage(), e);
         }
         return Result.error("添加失败");
     }
