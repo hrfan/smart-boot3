@@ -15,15 +15,14 @@ import com.smart.system.role.service.SmartRoleService;
 import com.smart.system.user.entity.SmartUser;
 import com.smart.system.user.service.SmartUserService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
@@ -281,7 +280,7 @@ public class TestController {
     public Result<List<SmartUser>> getUserList() {
         log.info("获取用户列表");
         List<SmartUser> users = smartUserService.list();
-        return Result.success(users);
+        return Result.success("获取用户列表成功",users);
     }
 
     @GetMapping("/redisBase")
@@ -294,6 +293,15 @@ public class TestController {
         log.info("redis中orderId: {}", redisOrderId);
 
         return Result.success("获取 Redis 中的 orderId: " + redisOrderId);
+    }
+
+
+
+
+    @PostMapping("/testParams")
+    public Result testParams(@RequestBody  @Valid SmartRole smartRole) {
+        log.info("当前角色信息:{}", smartRole);
+        return Result.success("参数校验成功", smartRole);
     }
 
     /**

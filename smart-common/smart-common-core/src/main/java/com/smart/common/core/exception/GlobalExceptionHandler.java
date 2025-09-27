@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -57,13 +58,19 @@ public class GlobalExceptionHandler {
      * @return 统一响应结果
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Result<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e, HttpServletRequest request) {
+        
         StringBuilder errorMsg = new StringBuilder();
+        
         for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
-            errorMsg.append(fieldError.getField()).append(": ").append(fieldError.getDefaultMessage()).append("; ");
+            errorMsg.append(fieldError.getDefaultMessage()).append("; ");
+            log.warn("参数验证异常 [{}]: {} {}", request.getRequestURI(), fieldError.getField(), fieldError.getDefaultMessage());
         }
+        
         String message = errorMsg.toString();
-        log.warn("参数验证异常 [{}]: {}", request.getRequestURI(), message);
+
+        
         return ResponseEntity.ok(Result.error(ResultCode.PARAMETER_ERROR.getCode(), message));
     }
 
@@ -77,8 +84,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BindException.class)
     public ResponseEntity<Result<Void>> handleBindException(BindException e, HttpServletRequest request) {
         StringBuilder errorMsg = new StringBuilder();
-        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
-            errorMsg.append(fieldError.getField()).append(": ").append(fieldError.getDefaultMessage()).append("; ");
+        
+        for (ObjectError error : e.getBindingResult().getAllErrors()) {
+            errorMsg.append(error.getDefaultMessage()).append("; ");
+
         }
         String message = errorMsg.toString();
         log.warn("参数绑定异常 [{}]: {}", request.getRequestURI(), message);
@@ -93,14 +102,19 @@ public class GlobalExceptionHandler {
      * @return 统一响应结果
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Result<Void>> handleConstraintViolationException(ConstraintViolationException e, HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleConstraintViolationException(
+            ConstraintViolationException e, HttpServletRequest request) {
+        
         StringBuilder errorMsg = new StringBuilder();
+        
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
         for (ConstraintViolation<?> violation : violations) {
-            errorMsg.append(violation.getPropertyPath()).append(": ").append(violation.getMessage()).append("; ");
+            errorMsg.append(violation.getMessage()).append("; ");
         }
+        
         String message = errorMsg.toString();
         log.warn("约束违反异常 [{}]: {}", request.getRequestURI(), message);
+        
         return ResponseEntity.ok(Result.error(ResultCode.PARAMETER_ERROR.getCode(), message));
     }
 
@@ -126,9 +140,13 @@ public class GlobalExceptionHandler {
      * @return 统一响应结果
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Result<Void>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
-        String message = "参数类型错误: " + e.getName() + " 应该是 " + e.getRequiredType().getSimpleName() + " 类型";
+    public ResponseEntity<Result<Void>> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+        
+        String message = String.format("参数 '%s' 类型错误，期望类型: %s", 
+                e.getName(), e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "未知");
         log.warn("参数类型不匹配异常 [{}]: {}", request.getRequestURI(), message);
+        
         return ResponseEntity.ok(Result.error(ResultCode.PARAMETER_ERROR.getCode(), message));
     }
 
@@ -140,9 +158,13 @@ public class GlobalExceptionHandler {
      * @return 统一响应结果
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Result<Void>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
-        String message = "不支持的HTTP请求方法: " + e.getMethod();
-        log.warn("HTTP请求方法不支持异常 [{}]: {}", request.getRequestURI(), message);
+    public ResponseEntity<Result<Void>> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
+        
+        String message = String.format("不支持的HTTP方法: %s，支持的方法: %s", 
+                e.getMethod(), String.join(", ", e.getSupportedMethods()));
+        log.warn("HTTP方法不支持异常 [{}]: {}", request.getRequestURI(), message);
+        
         return ResponseEntity.ok(Result.error(ResultCode.METHOD_NOT_ALLOWED.getCode(), message));
     }
 
@@ -189,15 +211,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 处理数据库异常
+     * 处理SQL异常
      * 
-     * @param e 数据库异常
+     * @param e SQL异常
      * @param request HTTP请求
      * @return 统一响应结果
      */
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<Result<Void>> handleSQLException(SQLException e, HttpServletRequest request) {
-        log.error("数据库异常 [{}]: {}", request.getRequestURI(), e.getMessage(), e);
+        log.error("SQL异常 [{}]: {}", request.getRequestURI(), e.getMessage(), e);
         return ResponseEntity.ok(Result.error(ResultCode.DATABASE_ERROR.getCode(), "数据库操作失败"));
     }
 

@@ -1,8 +1,7 @@
 package com.smart.common.core.validation.annotation;
 
 
-
-import com.smart.common.core.validation.SmartSizeValidator;
+import com.smart.common.core.validation.SmartEnumValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -14,27 +13,27 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * @author: 高士勇
+ * @date: 2019-06-20
+ */
 @Target({METHOD, FIELD})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = SmartSizeValidator.class)
-public @interface SmartSize {
+@Constraint(validatedBy = SmartEnumValidator.class)
+public @interface SmartEnum {
 
-    String message() default "{javax.validation.constraints.Size.message}";
+    /**
+     * 是否必填 默认是必填的
+     * @return
+     */
+    boolean required() default true;
+
+    String message() default "必须是限定的值";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    /**
-     * @return size the element must be higher or equal to
-     */
-    int min() default 0;
-
-    /**
-     * @return size the element must be lower or equal to
-     */
-    int max() default Integer.MAX_VALUE;
-
+    String[] values() default {};
 }
-

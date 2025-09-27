@@ -43,7 +43,7 @@ public class SmartUserController {
     public Result<Boolean> createUser(@RequestBody SmartUser user) {
         log.info("创建用户: {}", user.getUserName());
         boolean success = smartUserService.createUser(user);
-        return Result.success(success);
+        return Result.success("用户创建成功", success);
     }
 
     /**
@@ -57,7 +57,7 @@ public class SmartUserController {
     public Result<SmartUser> getUserById(@Parameter(description = "用户ID") @PathVariable String userId) {
         log.info("获取用户详情: {}", userId);
         SmartUser user = smartUserService.getByUserId(userId);
-        return Result.success(user);
+        return Result.success("用户详情获取成功", user);
     }
 
     /**
@@ -71,7 +71,7 @@ public class SmartUserController {
     public Result<Boolean> updateUser(@RequestBody SmartUser user) {
         log.info("更新用户: {}", user.getId());
         boolean success = smartUserService.updateUser(user);
-        return Result.success(success);
+        return Result.success("用户更新成功", success);
     }
 
     /**
@@ -85,7 +85,7 @@ public class SmartUserController {
     public Result<Boolean> deleteUser(@Parameter(description = "用户ID") @PathVariable String userId) {
         log.info("删除用户: {}", userId);
         boolean success = smartUserService.deleteUser(userId);
-        return Result.success(success);
+        return Result.success("用户删除成功", success);
     }
 
     /**
@@ -98,7 +98,7 @@ public class SmartUserController {
     public Result<List<SmartUser>> getUserList() {
         log.info("获取用户列表");
         List<SmartUser> users = smartUserService.list();
-        return Result.success(users);
+        return Result.success("获取用户列表成功", users);
     }
 
     /**
@@ -116,7 +116,7 @@ public class SmartUserController {
         log.info("分页查询用户: current={}, size={}", current, size);
         Page<SmartUser> page = new Page<>(current, size);
         IPage<SmartUser> result = smartUserService.page(page);
-        return Result.success(result);
+        return Result.success("分页查询用户成功", result);
     }
 
     /**
@@ -130,7 +130,7 @@ public class SmartUserController {
     public Result<SmartUser> getUserByUserName(@Parameter(description = "用户名") @PathVariable String userName) {
         log.info("根据用户名查询用户: {}", userName);
         SmartUser user = smartUserService.getByUserName(userName);
-        return Result.success(user);
+        return Result.success("根据用户名查询用户成功", user);
     }
 
     /**
@@ -144,7 +144,7 @@ public class SmartUserController {
     public Result<SmartUser> getUserByEmail(@Parameter(description = "邮箱") @PathVariable String email) {
         log.info("根据邮箱查询用户: {}", email);
         SmartUser user = smartUserService.getByEmail(email);
-        return Result.success(user);
+        return Result.success("根据邮箱查询用户成功", user);
     }
 
     /**
@@ -158,7 +158,7 @@ public class SmartUserController {
     public Result<List<SmartUser>> getUsersByDeptId(@Parameter(description = "部门ID") @PathVariable String deptId) {
         log.info("根据部门ID查询用户列表: {}", deptId);
         List<SmartUser> users = smartUserService.getByDeptId(deptId);
-        return Result.success(users);
+        return Result.success("根据部门ID查询用户列表成功", users);
     }
 
     /**
@@ -175,7 +175,7 @@ public class SmartUserController {
             @Parameter(description = "状态") @RequestParam String status) {
         log.info("更新用户状态: {}, 状态: {}", userId, status);
         boolean success = smartUserService.updateUserStatus(userId, status);
-        return Result.success(success);
+        return Result.success("更新用户状态成功", success);
     }
 
     /**
@@ -192,7 +192,7 @@ public class SmartUserController {
             @Parameter(description = "新密码") @RequestParam String newPassword) {
         log.info("更新用户密码: {}", userId);
         boolean success = smartUserService.updatePassword(userId, newPassword);
-        return Result.success(success);
+        return Result.success("更新用户密码成功", success);
     }
 
     /**
@@ -209,7 +209,7 @@ public class SmartUserController {
             @Parameter(description = "登录IP") @RequestParam String loginIp) {
         log.info("更新登录信息: {}, IP: {}", userId, loginIp);
         boolean success = smartUserService.updateLoginInfo(userId, loginIp);
-        return Result.success(success);
+        return Result.success("更新登录信息成功", success);
     }
 
     /**
@@ -223,7 +223,7 @@ public class SmartUserController {
     public Result<Boolean> enableUser(@Parameter(description = "用户ID") @PathVariable String userId) {
         log.info("启用用户: {}", userId);
         boolean success = smartUserService.enableUser(userId);
-        return Result.success(success);
+        return Result.success("启用用户成功", success);
     }
 
     /**
@@ -237,7 +237,7 @@ public class SmartUserController {
     public Result<Boolean> disableUser(@Parameter(description = "用户ID") @PathVariable String userId) {
         log.info("停用用户: {}", userId);
         boolean success = smartUserService.disableUser(userId);
-        return Result.success(success);
+        return Result.success("停用用户成功", success);
     }
 
     /**
@@ -250,7 +250,7 @@ public class SmartUserController {
     public Result<Long> countUsers() {
         log.info("统计用户总数");
         long count = smartUserService.countUsers();
-        return Result.success(count);
+        return Result.success("统计用户总数成功", count);
     }
 
     /**
@@ -264,6 +264,6 @@ public class SmartUserController {
     public Result<Long> countUsersByStatus(@Parameter(description = "状态") @RequestParam String status) {
         log.info("根据状态统计用户数量: {}", status);
         long count = smartUserService.countUsersByStatus(status);
-        return Result.success(count);
+        return Result.success("根据状态统计用户数量成功", count);
     }
 }

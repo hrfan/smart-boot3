@@ -2,6 +2,8 @@ package com.smart.system.role.entiy;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.smart.common.core.validation.annotation.SmartEnum;
+import com.smart.common.core.validation.annotation.SmartSize;
 import com.smart.common.database.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,6 +24,7 @@ public class SmartRole extends BaseEntity {
      * 角色名称
      */
     @TableField("role_name")
+    @SmartSize(min = 1, max = 100, message = "角色名称长度必须在 1 到 100 个字符之间")
     private String roleName;
 
     /**

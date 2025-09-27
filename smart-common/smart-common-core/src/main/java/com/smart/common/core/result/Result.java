@@ -1,7 +1,6 @@
 package com.smart.common.core.result;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 统一响应结果
@@ -29,9 +28,9 @@ public class Result<T> implements Serializable {
     private T data;
 
     /**
-     * 响应时间
+     * 响应时间戳
      */
-    private Date timestamp;
+    private Long timestamp;
 
     /**
      * 是否成功
@@ -47,7 +46,7 @@ public class Result<T> implements Serializable {
      * 私有构造函数
      */
     private Result() {
-        this.timestamp = new Date();
+        this.timestamp = System.currentTimeMillis();
         this.success = false;
         this.error = true;
     }
@@ -62,6 +61,21 @@ public class Result<T> implements Serializable {
         Result<T> result = new Result<>();
         result.setCode(ResultCode.SUCCESS.getCode());
         result.setMessage(ResultCode.SUCCESS.getMessage());
+        result.setSuccess(true);
+        result.setError(false);
+        return result;
+    }
+
+    /**
+     * 成功响应带消息
+     * 
+     * @param message 响应消息
+     * @return 成功响应
+     */
+    public static <T>Result<T> success(String message) {
+        Result<T> result = new Result<T>();
+        result.setCode(ResultCode.SUCCESS.getCode());
+        result.setMessage(message);
         result.setSuccess(true);
         result.setError(false);
         return result;
@@ -138,6 +152,23 @@ public class Result<T> implements Serializable {
     }
 
     /**
+     * 失败响应带码、消息和数据
+     * 
+     * @param code 错误码
+     * @param message 错误消息
+     * @param data 错误数据
+     * @param <T> 数据类型
+     * @return 失败响应
+     */
+    public static <T> Result<T> error(Integer code, String message, T data) {
+        Result<T> result = error();
+        result.setCode(code);
+        result.setMessage(message);
+        result.setData(data);
+        return result;
+    }
+
+    /**
      * 失败响应带结果码
      * 
      * @param resultCode 结果码
@@ -150,6 +181,109 @@ public class Result<T> implements Serializable {
         result.setMessage(resultCode.getMessage());
         return result;
     }
+
+
+
+    /**
+     * 设置成功状态（链式调用）
+     * 
+     * @return 当前对象
+     */
+    public Result<T> setSuccess() {
+        this.code = ResultCode.SUCCESS.getCode();
+        this.success = true;
+        this.error = false;
+        return this;
+    }
+
+    /**
+     * 设置成功状态并设置消息（链式调用）
+     * 
+     * @param message 成功消息
+     * @return 当前对象
+     */
+    public Result<T> setSuccess(String message) {
+        this.message = message;
+        this.code = ResultCode.SUCCESS.getCode();
+        this.success = true;
+        this.error = false;
+        return this;
+    }
+
+    /**
+     * 设置错误状态（链式调用）
+     * 
+     * @return 当前对象
+     */
+    public Result<T> setError() {
+        this.code = ResultCode.ERROR.getCode();
+        this.success = false;
+        this.error = true;
+        return this;
+    }
+
+    /**
+     * 设置错误状态并设置消息（链式调用）
+     * 
+     * @param message 错误消息
+     * @return 当前对象
+     */
+    public Result<T> setError(String message) {
+        this.message = message;
+        this.code = ResultCode.ERROR.getCode();
+        this.success = false;
+        this.error = true;
+        return this;
+    }
+
+    /**
+     * 设置错误状态并设置码和消息（链式调用）
+     * 
+     * @param code 错误码
+     * @param message 错误消息
+     * @return 当前对象
+     */
+    public Result<T> setError(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+        this.success = false;
+        this.error = true;
+        return this;
+    }
+
+    /**
+     * 设置数据（链式调用）
+     * 
+     * @param data 数据
+     * @return 当前对象
+     */
+    public Result<T> setData(T data) {
+        this.data = data;
+        return this;
+    }
+
+    /**
+     * 设置消息（链式调用）
+     * 
+     * @param message 消息
+     * @return 当前对象
+     */
+    public Result<T> setMessage(String message) {
+        this.message = message;
+        return this;
+    }
+
+    /**
+     * 设置响应码（链式调用）
+     * 
+     * @param code 响应码
+     * @return 当前对象
+     */
+    public Result<T> setCode(Integer code) {
+        this.code = code;
+        return this;
+    }
+
 
     /**
      * 判断是否成功
@@ -169,37 +303,41 @@ public class Result<T> implements Serializable {
         return !isSuccess();
     }
 
-    // Getter和Setter方法
-    public Integer getCode() {
-        return code;
+    /**
+     * 判断是否有数据
+     * 
+     * @return 是否有数据
+     */
+    public boolean hasData() {
+        return this.data != null;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
+    /**
+     * 获取数据，如果为空则返回默认值
+     * 
+     * @param defaultValue 默认值
+     * @return 数据或默认值
+     */
+    public T getDataOrDefault(T defaultValue) {
+        return this.data != null ? this.data : defaultValue;
+    }
+
+    // ==================== Getter和Setter方法 ====================
+
+    public Integer getCode() {
+        return code;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public T getData() {
         return data;
     }
 
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public Date getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
     }
 
     public Boolean getSuccess() {
@@ -208,6 +346,15 @@ public class Result<T> implements Serializable {
 
     public void setSuccess(Boolean success) {
         this.success = success;
+        if (success != null) {
+            if (success) {
+                this.code = ResultCode.SUCCESS.getCode();
+                this.error = false;
+            } else {
+                this.code = ResultCode.ERROR.getCode();
+                this.error = true;
+            }
+        }
     }
 
     public Boolean getError() {
@@ -216,5 +363,9 @@ public class Result<T> implements Serializable {
 
     public void setError(Boolean error) {
         this.error = error;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 }
