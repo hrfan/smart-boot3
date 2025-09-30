@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @author Smart Boot3
  * @since 1.0.0
  */
-@RestControllerAdvice
+//@RestControllerAdvice
 public class RedisGlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(RedisGlobalExceptionHandler.class);

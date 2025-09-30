@@ -207,10 +207,10 @@ public abstract class BasePageService<T extends BaseEntity, M extends BaseMapper
         }
         
         // 示例：根据租户ID查询
-        if (condition.getTenantId() != null && !condition.getTenantId().isEmpty()) {
-            queryWrapper.eq("tenant_id", condition.getTenantId());
-        }
-        
+//        if (condition.getTenantId() != null && !condition.getTenantId().isEmpty()) {
+//            queryWrapper.eq("tenant_id", condition.getTenantId());
+//        }
+//
         // 示例：排除已删除的记录
         queryWrapper.eq("deleted", 0);
     }

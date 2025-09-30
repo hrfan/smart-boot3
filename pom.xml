@@ -56,6 +56,9 @@
         <druid.version>1.2.20</druid.version>
         <!-- minio 版本  -->
         <minio.version>8.5.17</minio.version>
+        <!-- 通用工具类版本 -->
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <commons-beanutils.version>1.11.0</commons-beanutils.version>
     </properties>
 
     <modules>
@@ -265,6 +268,21 @@
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
                 <version>${minio.version}</version>
+            </dependency>
+
+
+
+            <!-- 通用工具类 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils.version}</version>
             </dependency>
 
 
