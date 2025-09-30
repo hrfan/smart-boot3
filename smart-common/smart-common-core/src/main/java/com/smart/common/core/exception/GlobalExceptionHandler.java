@@ -24,6 +24,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.sql.SQLException;
 import java.util.Set;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Component;
 
 /**
  * 全局异常处理器
@@ -32,6 +34,7 @@ import java.util.Set;
  * @author smart-boot3
  * @since 1.0.0
  */
+@Component
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -208,6 +211,19 @@ public class GlobalExceptionHandler {
         String message = "访问被拒绝: " + e.getMessage();
         log.warn("访问拒绝异常 [{}]: {}", request.getRequestURI(), message);
         return ResponseEntity.ok(Result.error(ResultCode.FORBIDDEN.getCode(), message));
+    }
+
+    /**
+     * 处理Spring DataAccessException异常（包括MyBatis包装的SQL异常）
+     *
+     * @param e 数据访问异常
+     * @param request HTTP请求
+     * @return 统一响应结果
+     */
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<Result<Void>> handleDataAccessException(DataAccessException e, HttpServletRequest request) {
+        log.error("数据访问异常 [{}]: {}", request.getRequestURI(), e.getMessage(), e);
+        return ResponseEntity.ok(Result.error(ResultCode.DATABASE_ERROR.getCode(), "数据库操作失败"));
     }
 
     /**
