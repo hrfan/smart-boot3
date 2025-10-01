@@ -140,19 +140,6 @@ public class TestController {
         return Result.success("tryLock测试完成", result);
     }
 
-    @GetMapping("/r3")
-    public Result testR3() {
-        SmartRole smartRole = new SmartRole();
-        smartRole.setId(UUID.randomUUID().toString());
-        smartRole.setRoleName("ROLE_ADMIN");
-        smartRole.setRoleKey("ROLE_ADMIN");
-
-        boolean b = smartRoleService.insertRole(smartRole);
-        if (b) {
-            return Result.success("添加成功");
-        }
-        return Result.error("添加失败");
-    }
 
 
 

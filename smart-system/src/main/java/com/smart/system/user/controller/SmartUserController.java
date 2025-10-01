@@ -1,269 +1,98 @@
 package com.smart.system.user.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.smart.common.core.result.Result;
+import com.smart.common.database.query.QueryBuilder;
 import com.smart.system.user.entity.SmartUser;
 import com.smart.system.user.service.SmartUserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * 用户信息表Controller
- * 提供用户管理REST API接口
+ * 用户信息控制器
+ * 提供用户管理相关接口
  * 
  * @author Smart Boot3
  * @since 1.0.0
  */
-@Tag(name = "用户管理", description = "用户信息管理接口")
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/system/user")
 public class SmartUserController {
 
     private static final Logger log = LoggerFactory.getLogger(SmartUserController.class);
 
-    @Autowired
+    @Resource
     private SmartUserService smartUserService;
 
     /**
-     * 创建用户
-     * 
-     * @param user 用户信息
-     * @return 创建结果
+     * 查询用户分页列表
+     * @param smartUser 查询参数对象，用于构建查询条件，前端不需要传递
+     * @param pageNo  当前页码，默认值为1
+     * @param pageSize 每页记录数，默认值为10
+     * @param req  HTTP请求对象，用于获取查询参数（主要用来构建查询条件）
+     * @return 分页列表结果
      */
-    @Operation(summary = "创建用户", description = "创建新用户")
-    @PostMapping("/create")
-    public Result<Boolean> createUser(@RequestBody SmartUser user) {
-        log.info("创建用户: {}", user.getUserName());
-        boolean success = smartUserService.createUser(user);
-        return Result.success("用户创建成功", success);
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public Result<IPage<SmartUser>> queryPageList(SmartUser smartUser,
+                                                  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+                                                  @RequestParam(name="pageSize", defaultValue="20") Integer pageSize,
+                                                  HttpServletRequest req) {
+        QueryWrapper<SmartUser> queryWrapper = QueryBuilder.initQueryWrapper(smartUser, req.getParameterMap());
+        Page<SmartUser> page = new Page<SmartUser>(pageNo, pageSize);
+        IPage<SmartUser> pageList = smartUserService.page(page, queryWrapper);
+        return Result.success("查询成功", pageList);
     }
 
     /**
-     * 根据用户ID获取用户详情
-     * 
-     * @param userId 用户ID
-     * @return 用户信息
+     * 新增用户
+     * @param params 用户实体对象，包含新增的用户信息
+     * @return 操作结果，包含操作成功标志和操作结果数据
      */
-    @Operation(summary = "获取用户详情", description = "根据用户ID获取用户详细信息")
-    @GetMapping("/{userId}")
-    public Result<SmartUser> getUserById(@Parameter(description = "用户ID") @PathVariable String userId) {
-        log.info("获取用户详情: {}", userId);
-        SmartUser user = smartUserService.getByUserId(userId);
-        return Result.success("用户详情获取成功", user);
+    @RequestMapping(value = "insert", method = RequestMethod.POST)
+    public Result<?> insert(@RequestBody @Valid SmartUser params) {
+        SmartUser user = smartUserService.insert(params);
+        return user != null ? Result.success("新增成功", user) : Result.error("新增失败");
     }
 
     /**
      * 更新用户
-     * 
-     * @param user 用户信息
-     * @return 更新结果
+     * @param id 用户ID
+     * @param params 用户实体对象，包含更新的用户信息
+     * @return 操作结果，包含操作成功标志和操作结果数据
      */
-    @Operation(summary = "更新用户", description = "更新用户信息")
-    @PutMapping("/update")
-    public Result<Boolean> updateUser(@RequestBody SmartUser user) {
-        log.info("更新用户: {}", user.getId());
-        boolean success = smartUserService.updateUser(user);
-        return Result.success("用户更新成功", success);
+    @RequestMapping(value = "update/{id}", method = RequestMethod.PUT)
+    public Result<?> update(@PathVariable(name="id", required=true) String id, @RequestBody @Valid SmartUser params) {
+        SmartUser smartUser = smartUserService.update(params);
+        return smartUser != null ? Result.success("更新成功", smartUser) : Result.error("更新失败");
     }
 
     /**
      * 删除用户
-     * 
-     * @param userId 用户ID
-     * @return 删除结果
+     * @param id 用户ID，用于指定要删除的用户
+     * @return 操作结果，包含操作成功标志和操作结果数据
      */
-    @Operation(summary = "删除用户", description = "根据用户ID删除用户")
-    @DeleteMapping("/{userId}")
-    public Result<Boolean> deleteUser(@Parameter(description = "用户ID") @PathVariable String userId) {
-        log.info("删除用户: {}", userId);
-        boolean success = smartUserService.deleteUser(userId);
-        return Result.success("用户删除成功", success);
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    public Result<?> delete(@RequestParam(name="id", required=true) String id) {
+        boolean isSuccess = smartUserService.removeById(id);
+        return isSuccess ? Result.success("删除成功") : Result.error("删除失败");
     }
 
     /**
-     * 获取用户列表
-     * 
-     * @return 用户列表
+     * 批量删除用户
+     * @param ids 用户ID列表，用于指定要删除的用户
+     * @return 操作结果，包含操作成功标志和操作结果数据
      */
-    @Operation(summary = "获取用户列表", description = "获取所有用户列表")
-    @GetMapping("/list")
-    public Result<List<SmartUser>> getUserList() {
-        log.info("获取用户列表");
-        List<SmartUser> users = smartUserService.list();
-        return Result.success("获取用户列表成功", users);
-    }
-
-    /**
-     * 分页查询用户
-     * 
-     * @param current 当前页
-     * @param size 每页大小
-     * @return 分页结果
-     */
-    @Operation(summary = "分页查询用户", description = "分页查询用户信息")
-    @GetMapping("/page")
-    public Result<IPage<SmartUser>> getUserPage(
-            @Parameter(description = "当前页") @RequestParam(defaultValue = "1") Long current,
-            @Parameter(description = "每页大小") @RequestParam(defaultValue = "10") Long size) {
-        log.info("分页查询用户: current={}, size={}", current, size);
-        Page<SmartUser> page = new Page<>(current, size);
-        IPage<SmartUser> result = smartUserService.page(page);
-        return Result.success("分页查询用户成功", result);
-    }
-
-    /**
-     * 根据用户名查询用户
-     * 
-     * @param userName 用户名
-     * @return 用户信息
-     */
-    @Operation(summary = "根据用户名查询用户", description = "根据用户名获取用户信息")
-    @GetMapping("/by-username/{userName}")
-    public Result<SmartUser> getUserByUserName(@Parameter(description = "用户名") @PathVariable String userName) {
-        log.info("根据用户名查询用户: {}", userName);
-        SmartUser user = smartUserService.getByUserName(userName);
-        return Result.success("根据用户名查询用户成功", user);
-    }
-
-    /**
-     * 根据邮箱查询用户
-     * 
-     * @param email 邮箱
-     * @return 用户信息
-     */
-    @Operation(summary = "根据邮箱查询用户", description = "根据邮箱获取用户信息")
-    @GetMapping("/by-email/{email}")
-    public Result<SmartUser> getUserByEmail(@Parameter(description = "邮箱") @PathVariable String email) {
-        log.info("根据邮箱查询用户: {}", email);
-        SmartUser user = smartUserService.getByEmail(email);
-        return Result.success("根据邮箱查询用户成功", user);
-    }
-
-    /**
-     * 根据部门ID查询用户列表
-     * 
-     * @param deptId 部门ID
-     * @return 用户列表
-     */
-    @Operation(summary = "根据部门查询用户", description = "根据部门ID获取用户列表")
-    @GetMapping("/by-dept/{deptId}")
-    public Result<List<SmartUser>> getUsersByDeptId(@Parameter(description = "部门ID") @PathVariable String deptId) {
-        log.info("根据部门ID查询用户列表: {}", deptId);
-        List<SmartUser> users = smartUserService.getByDeptId(deptId);
-        return Result.success("根据部门ID查询用户列表成功", users);
-    }
-
-    /**
-     * 更新用户状态
-     * 
-     * @param userId 用户ID
-     * @param status 状态
-     * @return 更新结果
-     */
-    @Operation(summary = "更新用户状态", description = "更新用户状态")
-    @PutMapping("/status")
-    public Result<Boolean> updateUserStatus(
-            @Parameter(description = "用户ID") @RequestParam String userId,
-            @Parameter(description = "状态") @RequestParam String status) {
-        log.info("更新用户状态: {}, 状态: {}", userId, status);
-        boolean success = smartUserService.updateUserStatus(userId, status);
-        return Result.success("更新用户状态成功", success);
-    }
-
-    /**
-     * 更新用户密码
-     * 
-     * @param userId 用户ID
-     * @param newPassword 新密码
-     * @return 更新结果
-     */
-    @Operation(summary = "更新用户密码", description = "更新用户密码")
-    @PutMapping("/password")
-    public Result<Boolean> updatePassword(
-            @Parameter(description = "用户ID") @RequestParam String userId,
-            @Parameter(description = "新密码") @RequestParam String newPassword) {
-        log.info("更新用户密码: {}", userId);
-        boolean success = smartUserService.updatePassword(userId, newPassword);
-        return Result.success("更新用户密码成功", success);
-    }
-
-    /**
-     * 更新登录信息
-     * 
-     * @param userId 用户ID
-     * @param loginIp 登录IP
-     * @return 更新结果
-     */
-    @Operation(summary = "更新登录信息", description = "更新用户登录信息")
-    @PutMapping("/login-info")
-    public Result<Boolean> updateLoginInfo(
-            @Parameter(description = "用户ID") @RequestParam String userId,
-            @Parameter(description = "登录IP") @RequestParam String loginIp) {
-        log.info("更新登录信息: {}, IP: {}", userId, loginIp);
-        boolean success = smartUserService.updateLoginInfo(userId, loginIp);
-        return Result.success("更新登录信息成功", success);
-    }
-
-    /**
-     * 启用用户
-     * 
-     * @param userId 用户ID
-     * @return 操作结果
-     */
-    @Operation(summary = "启用用户", description = "启用用户账号")
-    @PutMapping("/enable/{userId}")
-    public Result<Boolean> enableUser(@Parameter(description = "用户ID") @PathVariable String userId) {
-        log.info("启用用户: {}", userId);
-        boolean success = smartUserService.enableUser(userId);
-        return Result.success("启用用户成功", success);
-    }
-
-    /**
-     * 停用用户
-     * 
-     * @param userId 用户ID
-     * @return 操作结果
-     */
-    @Operation(summary = "停用用户", description = "停用用户账号")
-    @PutMapping("/disable/{userId}")
-    public Result<Boolean> disableUser(@Parameter(description = "用户ID") @PathVariable String userId) {
-        log.info("停用用户: {}", userId);
-        boolean success = smartUserService.disableUser(userId);
-        return Result.success("停用用户成功", success);
-    }
-
-    /**
-     * 统计用户总数
-     * 
-     * @return 用户总数
-     */
-    @Operation(summary = "统计用户总数", description = "获取用户总数")
-    @GetMapping("/count")
-    public Result<Long> countUsers() {
-        log.info("统计用户总数");
-        long count = smartUserService.countUsers();
-        return Result.success("统计用户总数成功", count);
-    }
-
-    /**
-     * 根据状态统计用户数量
-     * 
-     * @param status 状态
-     * @return 用户数量
-     */
-    @Operation(summary = "根据状态统计用户数量", description = "根据状态统计用户数量")
-    @GetMapping("/count-by-status")
-    public Result<Long> countUsersByStatus(@Parameter(description = "状态") @RequestParam String status) {
-        log.info("根据状态统计用户数量: {}", status);
-        long count = smartUserService.countUsersByStatus(status);
-        return Result.success("根据状态统计用户数量成功", count);
+    @RequestMapping(value = "/deleteBatch", method = RequestMethod.DELETE)
+    public Result<?> deleteBatch(@RequestBody @Valid List<String> ids) {
+        boolean isSuccess = smartUserService.removeByIds(ids);
+        return isSuccess ? Result.success("删除成功") : Result.error("删除失败");
     }
 }

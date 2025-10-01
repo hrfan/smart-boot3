@@ -3,7 +3,6 @@ package com.smart.system.role.entiy;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.smart.common.core.validation.annotation.SmartEnum;
 import com.smart.common.core.validation.annotation.SmartSize;
 import com.smart.common.database.entity.BaseEntity;
 import lombok.Data;
