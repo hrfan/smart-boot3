@@ -17,5 +17,8 @@ public interface SmartPermissionService extends IService<SmartPermission> {
 
     SmartPermission insert(SmartPermission smartPermission);
 
+
+    SmartPermission update(SmartPermission smartPermission);
+
 }
 

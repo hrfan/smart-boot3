@@ -47,5 +47,19 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
         }
         return null;
     }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public SmartPermission update(SmartPermission smartPermission) {
+        // 从spring security获取当前登录用户ID
+        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        smartPermission.setUpdateBy(currentUserId);
+        boolean b = updateById(smartPermission);
+        if (b) {
+            return smartPermission;
+        }
+        return null;
+    }
 }
 
