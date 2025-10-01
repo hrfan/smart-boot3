@@ -200,12 +200,7 @@ public abstract class BasePageService<T extends BaseEntity, M extends BaseMapper
         if (condition.getId() != null && !condition.getId().isEmpty()) {
             queryWrapper.eq("id", condition.getId());
         }
-        
-        // 示例：根据创建人查询
-        if (condition.getCreateBy() != null && !condition.getCreateBy().isEmpty()) {
-            queryWrapper.eq("create_by", condition.getCreateBy());
-        }
-        
+
         // 示例：根据租户ID查询
 //        if (condition.getTenantId() != null && !condition.getTenantId().isEmpty()) {
 //            queryWrapper.eq("tenant_id", condition.getTenantId());

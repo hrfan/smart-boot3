@@ -1,5 +1,6 @@
 package com.smart.system.role.entiy;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.smart.common.core.validation.annotation.SmartEnum;
@@ -7,6 +8,8 @@ import com.smart.common.core.validation.annotation.SmartSize;
 import com.smart.common.database.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 
 
 /**
@@ -74,4 +77,56 @@ public class SmartRole extends BaseEntity {
      */
     @TableField("remark")
     private String remark;
+
+
+
+    /**
+     * 创建时间
+     * 自动填充创建时间
+     */
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    private Date createTime;
+
+    /**
+     * 创建人
+     * 自动填充创建人
+     */
+    @TableField(value = "create_by", fill = FieldFill.INSERT)
+    private String createBy;
+
+    /**
+     * 创建人姓名
+     * 自动填充创建人姓名
+     */
+    @TableField(value = "create_user_name", fill = FieldFill.INSERT)
+    private String createUserName;
+
+    /**
+     * 更新时间
+     * 自动填充更新时间
+     */
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    private Date updateTime;
+
+    /**
+     * 更新人
+     * 自动填充更新人
+     */
+    @TableField(value = "update_by", fill = FieldFill.INSERT_UPDATE)
+    private String updateBy;
+
+    /**
+     * 更新人姓名
+     * 自动填充更新人姓名
+     */
+    @TableField(value = "update_user_name", fill = FieldFill.INSERT_UPDATE)
+    private String updateUserName;
+
+    /**
+     * 租户ID
+     * 用于多租户场景
+     */
+     @TableField(value = "tenant_id")
+    private String tenantId;
+
 }

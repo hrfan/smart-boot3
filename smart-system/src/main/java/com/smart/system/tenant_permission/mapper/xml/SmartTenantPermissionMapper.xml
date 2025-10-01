@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smart.system.tenant_permission.mapper.SmartTenantPermissionMapper">
+
+    <!-- 租户权限中间表结果映射 -->
+    <resultMap id="BaseResultMap" type="com.smart.system.tenant_permission.entity.SmartTenantPermission">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="VARCHAR"/>
+        <result column="permission_id" property="permissionId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, tenant_id, permission_id
+    </sql>
+
+</mapper>

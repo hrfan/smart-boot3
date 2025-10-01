@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smart.system.tenant.mapper.SmartTenantMapper">
+
+    <!-- 租户管理结果映射 -->
+    <resultMap id="BaseResultMap" type="com.smart.system.tenant.entity.SmartTenant">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="tenant_code" property="tenantCode" jdbcType="VARCHAR"/>
+        <result column="tenant_name" property="tenantName" jdbcType="VARCHAR"/>
+        <result column="operation_flag" property="operationFlag" jdbcType="VARCHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="create_user_name" property="createUserName" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR"/>
+        <result column="sys_org_code" property="sysOrgCode" jdbcType="VARCHAR"/>
+        <result column="login_url" property="loginUrl" jdbcType="VARCHAR"/>
+        <result column="max_users" property="maxUsers" jdbcType="VARCHAR"/>
+        <result column="enable_division" property="enableDivision" jdbcType="VARCHAR"/>
+        <result column="enable_proxy" property="enableProxy" jdbcType="VARCHAR"/>
+        <result column="enable_ignore_case" property="enableIgnoreCase" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="is_corporate_tenant" property="isCorporateTenant" jdbcType="VARCHAR"/>
+        <result column="main_menus" property="mainMenus" jdbcType="LONGVARCHAR"/>
+        <result column="portlet_code" property="portletCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, tenant_code, tenant_name, operation_flag, create_by, create_time, create_user_name,
+        update_by, update_time, update_user_name, sys_org_code, login_url, max_users, enable_division,
+        enable_proxy, enable_ignore_case, remark, is_corporate_tenant, main_menus, portlet_code
+    </sql>
+
+</mapper>

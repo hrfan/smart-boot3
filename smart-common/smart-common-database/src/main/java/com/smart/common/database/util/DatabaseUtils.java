@@ -53,9 +53,7 @@ public class DatabaseUtils {
         }
         
         entity.setId(generateId());
-        entity.setCreateTime(new Date());
-        entity.setCreateBy(createBy);
-        entity.setCreateUserName(createUserName);
+
         
         // 同时设置更新信息
         setUpdateInfo(entity, createBy, createUserName);
@@ -72,10 +70,7 @@ public class DatabaseUtils {
         if (entity == null) {
             return;
         }
-        
-        entity.setUpdateTime(new Timestamp(System.currentTimeMillis()));
-        entity.setUpdateBy(updateBy);
-        entity.setUpdateUserName(updateUserName);
+
         
 
     }
@@ -108,15 +103,6 @@ public class DatabaseUtils {
         for (BaseEntity entity : entityList) {
             if (entity != null) {
                 entity.setId(generateId());
-                entity.setCreateTime(now);
-                entity.setCreateBy(createBy);
-                entity.setCreateUserName(createUserName);
-                
-                // 同时设置更新信息
-                entity.setUpdateTime(now);
-                entity.setUpdateBy(createBy);
-                entity.setUpdateUserName(createUserName);
-
             }
         }
     }
@@ -137,9 +123,6 @@ public class DatabaseUtils {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         for (BaseEntity entity : entityList) {
             if (entity != null) {
-                entity.setUpdateTime(now);
-                entity.setUpdateBy(updateBy);
-                entity.setUpdateUserName(updateUserName);
             }
         }
     }

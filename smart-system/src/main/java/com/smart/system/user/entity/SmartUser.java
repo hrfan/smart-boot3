@@ -1,5 +1,6 @@
 package com.smart.system.user.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -21,12 +22,7 @@ import java.util.Date;
 @TableName("smart_user")
 public class SmartUser extends BaseEntity {
 
-    /**
-     * 用户ID
-     * 主键字段
-     */
-    @TableId(value = "id")
-    private String id;
+
 
     /**
      * 部门ID
@@ -123,4 +119,54 @@ public class SmartUser extends BaseEntity {
      */
     @TableField("remark")
     private String remark;
+
+
+
+
+
+
+
+    /**
+     * 创建时间
+     * 自动填充创建时间
+     */
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    private Date createTime;
+
+    /**
+     * 创建人
+     * 自动填充创建人
+     */
+    @TableField(value = "create_by", fill = FieldFill.INSERT)
+    private String createBy;
+
+    /**
+     * 创建人姓名
+     * 自动填充创建人姓名
+     */
+    @TableField(value = "create_user_name", fill = FieldFill.INSERT)
+    private String createUserName;
+
+    /**
+     * 更新时间
+     * 自动填充更新时间
+     */
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    private Date updateTime;
+
+    /**
+     * 更新人
+     * 自动填充更新人
+     */
+    @TableField(value = "update_by", fill = FieldFill.INSERT_UPDATE)
+    private String updateBy;
+
+    /**
+     * 更新人姓名
+     * 自动填充更新人姓名
+     */
+    @TableField(value = "update_user_name", fill = FieldFill.INSERT_UPDATE)
+    private String updateUserName;
+
+
 }
