@@ -65,6 +65,7 @@
         <module>smart-common</module>
         <module>smart-gateway</module>
         <module>smart-system</module>
+        <module>smart-api</module>
     </modules>
 
     <dependencyManagement>
@@ -129,6 +130,18 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- API模块 -->
+            <dependency>
+                <groupId>com.smart</groupId>
+                <artifactId>smart-system-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.smart</groupId>
+                <artifactId>smart-system-api-remote</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- MyBatis Plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>
@@ -152,6 +165,19 @@
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
                 <version>${nacos.version}</version>
+            </dependency>
+
+            <!-- Spring Cloud OpenFeign -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+            </dependency>
+
+            <!-- Spring Cloud LoadBalancer -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+                <version>4.0.4</version>
             </dependency>
 
             <!-- Hutool工具类 -->
