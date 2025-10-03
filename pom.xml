@@ -25,7 +25,7 @@
         <!-- Spring AI版本 -->
         <spring-ai.version>1.0.0-M3</spring-ai.version>
         <!-- MyBatis Plus版本 -->
-        <mybatis-plus.version>3.5.14</mybatis-plus.version>
+        <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <!-- Nacos版本 -->
         <nacos.version>2022.0.0.0</nacos.version>
         <!-- Hutool工具类版本 -->
@@ -62,10 +62,9 @@
     </properties>
 
     <modules>
-        <module>smart-common</module>
+        <module>smart-framework-parent</module>
+        <module>smart-api-parent</module>
         <module>smart-gateway</module>
-        <module>smart-system</module>
-        <module>smart-api</module>
     </modules>
 
     <dependencyManagement>
@@ -97,50 +96,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- 公共模块 -->
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-common-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-common-security</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-common-redis</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-common-database</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-common-ai</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-common-mail</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <!-- API模块 -->
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-system-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-system-api-remote</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
             <!-- MyBatis Plus -->
             <dependency>
@@ -148,10 +103,15 @@
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
-
+            <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-jsqlparser -->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-extension</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
 
@@ -185,6 +145,23 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- Jackson JSON处理 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
 
             <!-- JWT -->

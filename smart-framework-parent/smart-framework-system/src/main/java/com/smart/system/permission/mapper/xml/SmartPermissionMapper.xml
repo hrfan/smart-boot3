@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smart.system.permission.mapper.SmartPermissionMapper">
+
+    <!-- 菜单权限结果映射 -->
+    <resultMap id="BaseResultMap" type="com.smart.system.permission.entity.SmartPermission">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="menu_name" property="menuName" jdbcType="VARCHAR"/>
+        <result column="parent_id" property="parentId" jdbcType="BIGINT"/>
+        <result column="order_num" property="orderNum" jdbcType="INTEGER"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="component" property="component" jdbcType="VARCHAR"/>
+        <result column="query" property="query" jdbcType="VARCHAR"/>
+        <result column="route_name" property="routeName" jdbcType="VARCHAR"/>
+        <result column="is_frame" property="isFrame" jdbcType="VARCHAR"/>
+        <result column="frame_url" property="frameUrl" jdbcType="VARCHAR"/>
+        <result column="is_cache" property="isCache" jdbcType="VARCHAR"/>
+        <result column="menu_type" property="menuType" jdbcType="VARCHAR"/>
+        <result column="visible" property="visible" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="perms" property="perms" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="create_user_name" property="createUserName" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="is_leaf" property="isLeaf" jdbcType="TINYINT"/>
+        <result column="always_show" property="alwaysShow" jdbcType="TINYINT"/>
+        <result column="color" property="color" jdbcType="VARCHAR"/>
+        <result column="default_shortcut_menu" property="defaultShortcutMenu" jdbcType="VARCHAR"/>
+        <result column="reminder_menu" property="reminderMenu" jdbcType="VARCHAR"/>
+        <result column="tenant_menu" property="tenantMenu" jdbcType="VARCHAR"/>
+        <result column="allow_visitor_access" property="allowVisitorAccess" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, menu_name, parent_id, order_num, path, component, query, route_name, is_frame, frame_url,
+        is_cache, menu_type, visible, status, perms, icon, create_by, create_time, create_user_name,
+        update_by, update_time, update_user_name, remark, is_leaf, always_show, color, default_shortcut_menu,
+        reminder_menu, tenant_menu, allow_visitor_access
+    </sql>
+    <select id="findByUserId" resultType="java.lang.String">
+
+        select
+            distinct
+            perms
+        from
+            smart_permission p
+        left join  smart_role_permission rp on p.id = rp.permission_id
+        left join smart_role r on rp.role_id = r.id
+        left join smart_user_role ur on r.id = ur.role_id
+        left join smart_user u on ur.user_id = u.id
+        where u.id = #{id}
+    </select>
+
+
+</mapper>
+
