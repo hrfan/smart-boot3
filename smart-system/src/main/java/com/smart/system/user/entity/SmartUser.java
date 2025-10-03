@@ -4,10 +4,15 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.smart.common.database.entity.BaseEntity;
+import com.smart.system.permission.entity.SmartPermission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 用户信息表实体类
@@ -19,7 +24,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("smart_user")
-public class SmartUser extends BaseEntity {
+public class SmartUser extends BaseEntity implements UserDetails {
 
 
 
@@ -173,6 +178,88 @@ public class SmartUser extends BaseEntity {
      */
     @TableField("tenant_id")
     private String tenantId;
+
+
+
+
+    /**
+     * 账户是否过期 注意这里的true代表正常使用，false代表过期
+     */
+    @TableField(value = "is_account_non_expired")
+    private Boolean isAccountNonExpired = true;
+
+    /**
+     * 账户是否被锁定 注意这里的true代表正常使用，false代表账户被锁定
+     */
+    @TableField(value = "is_account_non_locked")
+    private Boolean isAccountNonLocked = true;
+
+    /**
+     * 密码是否过期 注意这里的true代表正常使用，false代表账户被锁定
+     */
+    @TableField(value = "is_credentials_non_expired")
+    private Boolean isCredentialsNonExpired = true;
+
+    /**
+     * 账户是否可用
+     */
+    @TableField(value = "is_enabled")
+    private Boolean isEnabled = true;
+
+
+    /**
+     * 权限列表 就是菜单列表
+     */
+    @TableField(exist = false)
+    private List<SmartPermission> permissionList;
+    /**
+     * 认证信息 就是用户配置code
+     */
+    @TableField(exist = false)
+    Collection<? extends GrantedAuthority> authorities;
+
+    /**
+     * 用户权限信息 就是角色列表
+     */
+    @TableField(exist = false)
+    private List<String> roles;
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.userName;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return this.isAccountNonExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.isAccountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return this.isCredentialsNonExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.isEnabled;
+    }
+
 
 
 }
