@@ -168,4 +168,11 @@ public class SmartUser extends BaseEntity {
     private String updateUserName;
 
 
+    /**
+     * 租户ID
+     */
+    @TableField("tenant_id")
+    private String tenantId;
+
+
 }
