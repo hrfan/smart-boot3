@@ -108,6 +108,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         // 跳过公开端点
         return path.startsWith("/api/auth/") ||
+               path.startsWith("/system/auth/") ||
                path.startsWith("/api/public/") ||
                path.startsWith("/swagger-ui/") ||
                path.startsWith("/v3/api-docs/") ||

@@ -3,6 +3,7 @@ package com.smart.framework.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smart.framework.core.result.Result;
 import com.smart.framework.core.result.ResultCode;
+import com.smart.framework.security.exception.CaptchaException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,7 +58,9 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         int errorCode = HttpServletResponse.SC_UNAUTHORIZED;
         
         // 根据异常类型设置不同的错误信息
-        if (exception instanceof AccountExpiredException) {
+        if (exception instanceof CaptchaException) {
+            errorMessage = exception.getMessage();
+        } else if (exception instanceof AccountExpiredException) {
             errorMessage = "账户已过期，请联系管理员";
         } else if (exception instanceof UsernameNotFoundException) {
             errorMessage = "账户不存在";

@@ -31,6 +31,6 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
       * @param id 用户ID
       * @return 角色标识列表
       */
-    List<String> findRoleByUserId(@Param("id") String id);
+    List<String> findRoleByUserId(@Param("userId") String id);
 }
 

@@ -386,4 +386,77 @@ public class SecurityUtils {
         return String.format("用户[%s, ID:%s, 租户:%s, 权限数量:%d]", 
                 username, userId, tenantId, authorities.size());
     }
+
+    /**
+     * 获取当前用户的详细信息（通过反射）
+     * 
+     * @param fieldName 字段名
+     * @return 字段值
+     */
+    public static Object getCurrentUserField(String fieldName) {
+        UserDetails userDetails = getCurrentUserDetails();
+        if (userDetails == null) {
+            return null;
+        }
+
+        try {
+            java.lang.reflect.Field field = userDetails.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(userDetails);
+        } catch (Exception e) {
+            log.debug("无法通过反射获取字段 {}: {}", fieldName, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 获取当前用户的方法返回值（通过反射）
+     * 
+     * @param methodName 方法名
+     * @return 方法返回值
+     */
+    public static Object getCurrentUserMethod(String methodName) {
+        UserDetails userDetails = getCurrentUserDetails();
+        if (userDetails == null) {
+            return null;
+        }
+
+        try {
+            return userDetails.getClass().getMethod(methodName).invoke(userDetails);
+        } catch (Exception e) {
+            log.debug("无法通过反射调用方法 {}: {}", methodName, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 检查当前用户是否拥有指定权限（忽略大小写）
+     * 
+     * @param permission 权限标识
+     * @return 是否拥有权限
+     */
+    public static boolean hasPermissionIgnoreCase(String permission) {
+        if (permission == null || permission.trim().isEmpty()) {
+            return false;
+        }
+
+        List<String> authorities = getCurrentUserAuthorities();
+        return authorities.stream()
+                .anyMatch(auth -> auth.equalsIgnoreCase(permission));
+    }
+
+    /**
+     * 检查当前用户是否拥有指定角色（忽略大小写）
+     * 
+     * @param role 角色标识
+     * @return 是否拥有角色
+     */
+    public static boolean hasRoleIgnoreCase(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            return false;
+        }
+
+        String roleWithPrefix = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+        return hasPermissionIgnoreCase(roleWithPrefix);
+    }
 }

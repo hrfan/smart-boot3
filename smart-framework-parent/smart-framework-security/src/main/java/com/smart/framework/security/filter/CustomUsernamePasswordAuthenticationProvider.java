@@ -1,6 +1,12 @@
 package com.smart.framework.security.filter;
 
+import com.smart.framework.captcha.properties.CaptchaProperties;
+import com.smart.framework.captcha.service.CaptchaService;
 import com.smart.framework.security.service.CustomUserDetailsService;
+import com.smart.framework.security.exception.CaptchaException;
+// import com.smart.framework.captcha.service.CaptchaService;
+// import com.smart.framework.captcha.properties.CaptchaProperties;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
@@ -12,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * 自定义用户名密码认证提供者
@@ -25,25 +32,29 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
 
     private static final Logger log = LoggerFactory.getLogger(CustomUsernamePasswordAuthenticationProvider.class);
 
-    private final CustomUserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
+    @Resource
+    private  CustomUserDetailsService userDetailsService;
+
+    @Resource
+    private  PasswordEncoder passwordEncoder;
+
+    /**
+     * 验证码服务（暂时注释，等待captcha模块编译成功）
+     */
+    @Resource
+     private  CaptchaService captchaService;
+
+    /**
+     * 验证码配置（暂时注释，等待captcha模块编译成功）
+     */
+     @Resource
+     private  CaptchaProperties captchaProperties;
 
     /**
      * 用户状态检查器
      */
     private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
-    /**
-     * 构造函数
-     * 
-     * @param userDetailsService 用户详情服务
-     * @param passwordEncoder 密码编码器
-     */
-    public CustomUsernamePasswordAuthenticationProvider(CustomUserDetailsService userDetailsService, 
-                                                        PasswordEncoder passwordEncoder) {
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * 执行认证
@@ -61,14 +72,13 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
         CustomUsernamePasswordAuthenticationToken token = (CustomUsernamePasswordAuthenticationToken) authentication;
         String username = token.getName();
         String password = (String) token.getCredentials();
+        String captcha = token.getCaptcha();
+        String captchaUuid = token.getCaptchaUuid();
 
         log.debug("开始认证用户：{}", username);
 
-        // TODO: 验证码校验
-        // 1. 从Redis中获取验证码
-        // 2. 比较验证码是否正确
-        // 3. 验证码使用后删除
-        // validateCaptcha(token);
+        // 验证码校验 - 优先校验验证码，防止暴力破解
+        validateCaptcha(captchaUuid, captcha);
 
         // 加载用户详情
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -107,6 +117,53 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
         authenticatedToken.setUserAgent(token.getUserAgent());
 
         return authenticatedToken;
+    }
+
+    /**
+     * 验证码校验
+     * 
+     * @param captchaUuid 验证码UUID
+     * @param captcha 验证码内容
+     * @throws AuthenticationException 认证异常
+     */
+    private void validateCaptcha(String captchaUuid, String captcha) throws AuthenticationException {
+        // 检查验证码是否启用（暂时注释，等待captcha模块编译成功）
+        log.info("验证码功能是否启用：{}", captchaProperties.isEnabled());
+        if (!captchaProperties.isEnabled()) {
+            log.debug("验证码功能未启用，跳过验证码校验");
+            return;
+        }
+
+        // 如果验证码UUID为空，跳过验证码校验
+        if (!StringUtils.hasText(captchaUuid)) {
+            log.debug("验证码UUID为空，跳过验证码校验");
+            return;
+        }
+        
+        if (!StringUtils.hasText(captcha)) {
+            log.warn("验证码为空");
+            throw new CaptchaException("验证码不能为空");
+        }
+        
+        log.debug("验证码校验 - UUID：{}，验证码：{}", captchaUuid, captcha);
+        
+        // 调用验证码模块的服务进行校验
+        boolean isValid = captchaService.verifyCaptcha(captchaUuid, captcha);
+        if (!isValid) {
+            log.warn("验证码校验失败，UUID：{}，验证码：{}", captchaUuid, captcha);
+            throw new CaptchaException("验证码错误或已过期");
+        }
+
+        log.debug("验证码校验成功，UUID：{}", captchaUuid);
+    }
+
+    /**
+     * 设置密码编码器
+     * 
+     * @param passwordEncoder 密码编码器
+     */
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**

@@ -108,7 +108,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 
         // TODO: 密码解密处理
         // 如果前端传递的是加密密码，这里需要解密
-         password = decryptPassword(password);
+        // password = decryptPassword(password);
 
         // 获取客户端信息
         String clientIp = getClientIpAddress(request);
@@ -130,12 +130,13 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
         return this.getAuthenticationManager().authenticate(authRequest);
     }
 
-        /**
-         * 解密密码
-         *
-         * @param encryptedPassword 加密后的密码
-         * @return 解密后的密码
-         */
+
+    /**
+     * 解密密码
+     *
+     * @param encryptedPassword 加密后的密码
+     * @return 解密后的密码
+     */
     private String decryptPassword(String encryptedPassword) {
         // TODO: 实现密码解密逻辑
         // 这里可以使用加密算法解密密码
@@ -312,4 +313,3 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
         return null;
     }
 }
-
