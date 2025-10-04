@@ -23,7 +23,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -85,9 +84,11 @@ public class SecurityConfig {
         this.customAuthenticationProvider = customAuthenticationProvider;
     }
 
+
     /**
-     * 认证提供者
+     * 标准认证提供者（用于表单登录）
      * 
+     * @param passwordEncoder 密码编码器（从PasswordEncoderConfig注入）
      * @return DaoAuthenticationProvider
      */
     @Bean
@@ -228,7 +229,7 @@ public class SecurityConfig {
             
             // 配置登出
             .logout(logout -> logout
-                .logoutUrl("/api/auth/logout")
+                .logoutUrl("/system/auth/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .deleteCookies("JSESSIONID")
                 .invalidateHttpSession(true)

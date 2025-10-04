@@ -48,9 +48,12 @@
         </dependency>
 
 
+        <!-- AJ-Captcha 验证码组件 -->
+        <!-- https://mvnrepository.com/artifact/com.anji-plus/captcha -->
         <dependency>
-            <groupId>com.smart</groupId>
-            <artifactId>smart-framework-common</artifactId>
+            <groupId>com.anji-plus</groupId>
+            <artifactId>captcha</artifactId>
+            <version>1.4.0</version>
         </dependency>
 
         <!-- 框架邮件模块 -->

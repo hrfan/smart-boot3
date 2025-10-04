@@ -1,5 +1,6 @@
 package com.smart.system.controller;
 
+import com.smart.framework.core.result.Result;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -41,8 +42,8 @@ public class AuthController {
      * @return 登出结果
      */
     @PostMapping("/logout")
-    public String logout() {
-        return "登出成功！";
+    public Result<Void> logout() {
+        return Result.success("登出成功！");
     }
 
     /**
@@ -51,8 +52,8 @@ public class AuthController {
      * @return 验证码信息
      */
     @GetMapping("/captcha")
-    public String getCaptcha() {
-        return "验证码功能待实现";
+    public Result<String> getCaptcha() {
+        return Result.success("验证码功能待实现");
     }
 
     /**
@@ -61,7 +62,7 @@ public class AuthController {
      * @return 刷新结果
      */
     @PostMapping("/refresh")
-    public String refresh() {
-        return "令牌刷新功能待实现";
+    public Result<String> refresh() {
+        return Result.success("令牌刷新功能待实现");
     }
 }

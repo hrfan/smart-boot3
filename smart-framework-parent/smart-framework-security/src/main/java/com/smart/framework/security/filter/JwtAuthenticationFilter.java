@@ -104,6 +104,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
+        log.info("请求路径: {}", path);
         
         // 跳过公开端点
         return path.startsWith("/api/auth/") ||

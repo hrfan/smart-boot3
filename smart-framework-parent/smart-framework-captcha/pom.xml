@@ -10,9 +10,9 @@
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>smart-framework-security</artifactId>
-    <name>smart-framework-security</name>
-    <description>smart框架安全认证模块</description>
+    <artifactId>smart-framework-captcha</artifactId>
+    <name>smart-framework-captcha</name>
+    <description>smart框架验证码模块</description>
 
     <dependencies>
         <!-- 继承核心模块 -->
@@ -27,41 +27,20 @@
             <artifactId>smart-framework-common</artifactId>
         </dependency>
 
-        <!-- 继承数据库模块 -->
+        <!-- Spring Boot Starter Web -->
         <dependency>
-            <groupId>com.smart</groupId>
-            <artifactId>smart-framework-database</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- 继承验证码模块 -->
+        <!-- Spring Boot Configuration Processor -->
         <dependency>
-            <groupId>com.smart</groupId>
-            <artifactId>smart-framework-captcha</artifactId>
-        </dependency>
-
-
-        <!-- JWT -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-        </dependency>
-
-        <!-- Servlet API -->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <scope>provided</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
         
-        <!-- Lombok - 每个模块都需要单独添加 -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

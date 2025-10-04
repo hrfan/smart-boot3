@@ -27,6 +27,7 @@
         <module>smart-framework-file</module>
         <module>smart-framework-mail</module>
         <module>smart-framework-ai</module>
+        <module>smart-framework-captcha</module>
         <module>smart-framework-system</module>
     </modules>
 

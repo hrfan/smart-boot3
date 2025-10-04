@@ -152,6 +152,11 @@
             </dependency>
             <dependency>
                 <groupId>com.smart</groupId>
+                <artifactId>smart-framework-captcha</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.smart</groupId>
                 <artifactId>smart-framework-system</artifactId>
                 <version>1.0.0</version>
             </dependency>

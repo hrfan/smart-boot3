@@ -1,5 +1,6 @@
 package com.smart.framework.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -7,11 +8,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * 自定义用户名密码认证过滤器
@@ -104,7 +108,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 
         // TODO: 密码解密处理
         // 如果前端传递的是加密密码，这里需要解密
-        // password = decryptPassword(password);
+         password = decryptPassword(password);
 
         // 获取客户端信息
         String clientIp = getClientIpAddress(request);
@@ -126,44 +130,129 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
         return this.getAuthenticationManager().authenticate(authRequest);
     }
 
+        /**
+         * 解密密码
+         *
+         * @param encryptedPassword 加密后的密码
+         * @return 解密后的密码
+         */
+    private String decryptPassword(String encryptedPassword) {
+        // TODO: 实现密码解密逻辑
+        // 这里可以使用加密算法解密密码
+        // 例如：AES解密、RSA解密等
+        return new BCryptPasswordEncoder().encode(encryptedPassword); // 假设直接返回加密后的密码，实际应解密后返回
+    }
+
     /**
      * 获取用户名
+     * 支持表单参数和JSON格式
      * 
      * @param request HTTP请求
      * @return 用户名
      */
     protected String obtainUsername(HttpServletRequest request) {
-        return request.getParameter(USERNAME_PARAM);
+        // 首先尝试从表单参数获取
+        String username = request.getParameter(USERNAME_PARAM);
+        if (StringUtils.hasText(username)) {
+            return username;
+        }
+        
+        // 如果表单参数为空，尝试从JSON请求体获取
+        try {
+            Map<String, Object> jsonParams = getJsonParameters(request);
+            if (jsonParams != null && jsonParams.containsKey(USERNAME_PARAM)) {
+                Object value = jsonParams.get(USERNAME_PARAM);
+                return value != null ? value.toString() : null;
+            }
+        } catch (Exception e) {
+            log.debug("解析JSON参数失败，使用表单参数: {}", e.getMessage());
+        }
+        
+        return null;
     }
 
     /**
      * 获取密码
+     * 支持表单参数和JSON格式
      * 
      * @param request HTTP请求
      * @return 密码
      */
     protected String obtainPassword(HttpServletRequest request) {
-        return request.getParameter(PASSWORD_PARAM);
+        // 首先尝试从表单参数获取
+        String password = request.getParameter(PASSWORD_PARAM);
+        if (StringUtils.hasText(password)) {
+            return password;
+        }
+        
+        // 如果表单参数为空，尝试从JSON请求体获取
+        try {
+            Map<String, Object> jsonParams = getJsonParameters(request);
+            if (jsonParams != null && jsonParams.containsKey(PASSWORD_PARAM)) {
+                Object value = jsonParams.get(PASSWORD_PARAM);
+                return value != null ? value.toString() : null;
+            }
+        } catch (Exception e) {
+            log.debug("解析JSON参数失败，使用表单参数: {}", e.getMessage());
+        }
+        
+        return null;
     }
 
     /**
      * 获取验证码
+     * 支持表单参数和JSON格式
      * 
      * @param request HTTP请求
      * @return 验证码
      */
     protected String obtainCaptcha(HttpServletRequest request) {
-        return request.getParameter(CAPTCHA_PARAM);
+        // 首先尝试从表单参数获取
+        String captcha = request.getParameter(CAPTCHA_PARAM);
+        if (StringUtils.hasText(captcha)) {
+            return captcha;
+        }
+        
+        // 如果表单参数为空，尝试从JSON请求体获取
+        try {
+            Map<String, Object> jsonParams = getJsonParameters(request);
+            if (jsonParams != null && jsonParams.containsKey(CAPTCHA_PARAM)) {
+                Object value = jsonParams.get(CAPTCHA_PARAM);
+                return value != null ? value.toString() : null;
+            }
+        } catch (Exception e) {
+            log.debug("解析JSON参数失败，使用表单参数: {}", e.getMessage());
+        }
+        
+        return null;
     }
 
     /**
      * 获取验证码UUID
+     * 支持表单参数和JSON格式
      * 
      * @param request HTTP请求
      * @return 验证码UUID
      */
     protected String obtainCaptchaUuid(HttpServletRequest request) {
-        return request.getParameter(CAPTCHA_UUID_PARAM);
+        // 首先尝试从表单参数获取
+        String captchaUuid = request.getParameter(CAPTCHA_UUID_PARAM);
+        if (StringUtils.hasText(captchaUuid)) {
+            return captchaUuid;
+        }
+        
+        // 如果表单参数为空，尝试从JSON请求体获取
+        try {
+            Map<String, Object> jsonParams = getJsonParameters(request);
+            if (jsonParams != null && jsonParams.containsKey(CAPTCHA_UUID_PARAM)) {
+                Object value = jsonParams.get(CAPTCHA_UUID_PARAM);
+                return value != null ? value.toString() : null;
+            }
+        } catch (Exception e) {
+            log.debug("解析JSON参数失败，使用表单参数: {}", e.getMessage());
+        }
+        
+        return null;
     }
 
     /**
@@ -193,6 +282,34 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
      */
     public void setPostOnly(boolean postOnly) {
         this.postOnly = postOnly;
+    }
+
+    /**
+     * 从JSON请求体中获取参数
+     * 
+     * @param request HTTP请求
+     * @return 参数Map
+     * @throws IOException IO异常
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getJsonParameters(HttpServletRequest request) throws IOException {
+        String contentType = request.getContentType();
+        if (contentType != null && contentType.contains("application/json")) {
+            StringBuilder jsonBuilder = new StringBuilder();
+            try (BufferedReader reader = request.getReader()) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    jsonBuilder.append(line);
+                }
+            }
+            
+            String jsonString = jsonBuilder.toString();
+            if (StringUtils.hasText(jsonString)) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.readValue(jsonString, Map.class);
+            }
+        }
+        return null;
     }
 }
 

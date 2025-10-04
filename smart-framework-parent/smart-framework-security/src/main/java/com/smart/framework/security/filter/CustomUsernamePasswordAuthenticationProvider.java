@@ -1,6 +1,5 @@
 package com.smart.framework.security.filter;
 
-
 import com.smart.framework.security.service.CustomUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,20 +29,21 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
     private final PasswordEncoder passwordEncoder;
 
     /**
+     * 用户状态检查器
+     */
+    private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
+
+    /**
      * 构造函数
      * 
      * @param userDetailsService 用户详情服务
      * @param passwordEncoder 密码编码器
      */
-    public CustomUsernamePasswordAuthenticationProvider(CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public CustomUsernamePasswordAuthenticationProvider(CustomUserDetailsService userDetailsService, 
+                                                        PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
     }
-
-    /**
-     * 用户状态检查器
-     */
-    private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
     /**
      * 执行认证
@@ -68,7 +68,7 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
         // 1. 从Redis中获取验证码
         // 2. 比较验证码是否正确
         // 3. 验证码使用后删除
-        validateCaptcha(token);
+        // validateCaptcha(token);
 
         // 加载用户详情
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -110,38 +110,6 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
     }
 
     /**
-     * 验证码校验
-     * 
-     * @param token 认证令牌
-     * @throws AuthenticationException 认证异常
-     */
-    private void validateCaptcha(CustomUsernamePasswordAuthenticationToken token) throws AuthenticationException {
-        String captchaUuid = token.getCaptchaUuid();
-        String captcha = token.getCaptcha();
-
-        // TODO: 实现验证码校验逻辑
-        // 1. 如果验证码UUID为空，跳过验证码校验
-        // 2. 从Redis中获取验证码
-        // 3. 比较验证码（忽略大小写）
-        // 4. 验证码使用后删除
-        // 5. 验证码过期处理
-
-        if (captchaUuid != null && !captchaUuid.trim().isEmpty()) {
-            log.debug("验证码校验 - UUID：{}，验证码：{}", captchaUuid, captcha);
-            
-            // 临时跳过验证码校验，实际应该从Redis获取
-            // String storedCaptcha = redisTemplate.opsForValue().get("captcha:" + captchaUuid);
-            // if (storedCaptcha == null) {
-            //     throw new BadCredentialsException("验证码已过期");
-            // }
-            // if (!storedCaptcha.equalsIgnoreCase(captcha)) {
-            //     throw new BadCredentialsException("验证码错误");
-            // }
-            // redisTemplate.delete("captcha:" + captchaUuid);
-        }
-    }
-
-    /**
      * 判断是否支持该认证类型
      * 
      * @param authentication 认证类型
@@ -152,4 +120,3 @@ public class CustomUsernamePasswordAuthenticationProvider implements Authenticat
         return CustomUsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
-

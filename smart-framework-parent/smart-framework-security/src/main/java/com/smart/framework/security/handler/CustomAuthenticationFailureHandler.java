@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
@@ -58,6 +59,8 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         // 根据异常类型设置不同的错误信息
         if (exception instanceof AccountExpiredException) {
             errorMessage = "账户已过期，请联系管理员";
+        } else if (exception instanceof UsernameNotFoundException) {
+            errorMessage = "账户不存在";
         } else if (exception instanceof BadCredentialsException) {
             errorMessage = "用户名或密码错误";
         } else if (exception instanceof CredentialsExpiredException) {

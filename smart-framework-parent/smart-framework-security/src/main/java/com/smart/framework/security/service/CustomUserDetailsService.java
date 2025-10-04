@@ -1,5 +1,6 @@
 package com.smart.framework.security.service;
 
+import com.smart.framework.core.util.StringUtil;
 import com.smart.framework.security.entity.AuthSmartPermission;
 import com.smart.framework.security.entity.AuthSmartUser;
 import jakarta.annotation.Resource;
@@ -42,7 +43,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         log.debug("开始加载用户信息，用户名：{}", username);
         
         // 1. 参数校验
-        if (username == null || username.trim().isEmpty()) {
+        if (StringUtil.isBlank(username)) {
             throw new UsernameNotFoundException("用户名不能为空");
         }
         
