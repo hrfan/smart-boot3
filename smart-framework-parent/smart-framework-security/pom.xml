@@ -39,6 +39,12 @@
             <artifactId>smart-framework-captcha</artifactId>
         </dependency>
 
+        <!-- 继承Redis模块 -->
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-redis</artifactId>
+        </dependency>
+
 
         <!-- JWT -->
         <dependency>

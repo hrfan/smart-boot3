@@ -1,6 +1,7 @@
 package com.smart.framework.security.service;
 
 import com.smart.framework.core.util.StringUtil;
+import com.smart.framework.security.cache.UserCacheService;
 import com.smart.framework.security.entity.AuthSmartPermission;
 import com.smart.framework.security.entity.AuthSmartUser;
 import jakarta.annotation.Resource;
@@ -19,6 +20,7 @@ import java.util.List;
 /**
  * 自定义用户详情服务
  * 用于Spring Security认证和授权
+ * 参考yuncheng项目的缓存机制，避免重复查询数据库
  * 
  * @author smart-boot3
  * @since 1.0.0
@@ -31,8 +33,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Resource
     private AuthSmartUserService authSmartUserService;
+    
+    @Resource
+    private UserCacheService userCacheService;
+
     /**
      * 根据用户名查询用户信息
+     * 优先从缓存获取，缓存未命中时查询数据库并缓存结果
      * 
      * @param username 用户名
      * @return 用户详情
@@ -47,27 +54,38 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("用户名不能为空");
         }
         
-        // 2. 从数据库查询用户基本信息
+        // 2. 优先从缓存获取用户信息
+        AuthSmartUser cachedUser = userCacheService.getCachedUser(username);
+        if (cachedUser != null) {
+            log.debug("从缓存获取用户信息成功，用户名：{}", username);
+            return cachedUser;
+        }
+        
+        // 3. 缓存未命中，从数据库查询用户基本信息
         AuthSmartUser user = authSmartUserService.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在：" + username);
         }
         
-        // 3. 查询用户角色和权限
+        // 4. 查询用户角色和权限
         List<String> permissions = getUserPermissions(user.getId());
         
-        // 4. 构建UserDetails对象
+        // 5. 构建UserDetails对象
         String[] permissionArray = permissions.toArray(new String[0]);
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(permissionArray);
         user.setAuthorities(authorities);
         
-        log.debug("用户信息加载完成，用户名：{}，权限数量：{}", username, permissions.size());
+        // 6. 将用户信息缓存到Redis
+        userCacheService.cacheUser(username, user);
+        
+        log.debug("用户信息加载完成并已缓存，用户名：{}，权限数量：{}", username, permissions.size());
         
         return user;
     }
     
     /**
      * 根据用户ID查询用户权限
+     * 优先从缓存获取，缓存未命中时查询数据库并缓存结果
      * 
      * @param userId 用户ID
      * @return 权限列表
@@ -75,12 +93,25 @@ public class CustomUserDetailsService implements UserDetailsService {
     public List<String> getUserPermissions(String userId) {
         log.debug("查询用户权限，用户ID：{}", userId);
         
-        // 1. 查询用户角色
-        // 2. 查询角色对应的权限
-        // 3. 返回权限代码列表
+        // 1. 优先从缓存获取权限信息
+        AuthSmartUser user = authSmartUserService.findByUsername(userId);
+        if (user != null) {
+            List<String> cachedPermissions = userCacheService.getCachedUserPermissions(user.getUsername());
+            if (cachedPermissions != null) {
+                log.debug("从缓存获取用户权限成功，用户ID：{}", userId);
+                return cachedPermissions;
+            }
+        }
+        
+        // 2. 缓存未命中，从数据库查询权限
         List<String> permissions = authSmartUserService.findByUserId(userId);
         
-        // 后续可能需要归并多个权限来源 如 租户、角色、用户本身的权限
+        // 3. 将权限信息缓存到Redis
+        if (user != null) {
+            userCacheService.cacheUserPermissions(user.getUsername(), permissions);
+        }
+        
+        log.debug("用户权限查询完成并已缓存，用户ID：{}，权限数量：{}", userId, permissions.size());
         return permissions;
     }
     
@@ -116,6 +147,28 @@ public class CustomUserDetailsService implements UserDetailsService {
         
         log.debug("用户菜单权限查询完成，用户ID：{}，菜单数量：{}", userId, menus.size());
         return menus;
+    }
+    
+    /**
+     * 清除用户缓存
+     * 当用户信息发生变更时调用此方法
+     * 
+     * @param username 用户名
+     */
+    public void clearUserCache(String username) {
+        userCacheService.clearUserCache(username);
+        log.debug("用户缓存已清除，用户名：{}", username);
+    }
+    
+    /**
+     * 刷新用户缓存
+     * 延长用户缓存的过期时间
+     * 
+     * @param username 用户名
+     */
+    public void refreshUserCache(String username) {
+        userCacheService.refreshUserCache(username);
+        log.debug("用户缓存已刷新，用户名：{}", username);
     }
 }
 

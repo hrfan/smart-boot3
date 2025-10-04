@@ -2,30 +2,40 @@ package com.smart.framework.redis.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.*;
+
+import java.time.Duration;
+
 
 /**
  * Redis配置类
- * 配置Redis连接、序列化器等基础组件
+ * 参考yuncheng项目的Redis配置，支持缓存和序列化
  * 
  * @author Smart Boot3
  * @since 1.0.0
  */
 @Configuration
+@EnableCaching // 开启缓存支持
 public class RedisConfig {
 
     /**
      * 配置RedisTemplate
-     * 设置序列化器，确保key和value的正确序列化
+     * 参考yuncheng项目的序列化配置
      * 
      * @param connectionFactory Redis连接工厂
      * @return RedisTemplate实例
@@ -33,28 +43,27 @@ public class RedisConfig {
     @Bean
     @ConditionalOnMissingBean(RedisTemplate.class)
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
+        // 创建ObjectMapper并配置
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, DefaultTyping.NON_FINAL);
+        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        // 使用构造函数创建Jackson2JsonRedisSerializer（推荐方式）
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = 
+            new Jackson2JsonRedisSerializer<>(om, Object.class);
+        
+        // 配置redisTemplate
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<String, Object>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        RedisSerializer<?> stringSerializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(stringSerializer);// key序列化
+        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);// value序列化
+        redisTemplate.setHashKeySerializer(stringSerializer);// Hash key序列化
+        redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);// Hash value序列化
+        redisTemplate.afterPropertiesSet();
 
-        // 创建Jackson序列化器
-        GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = createJacksonSerializer();
-        
-        // 设置key序列化器
-        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        template.setKeySerializer(stringRedisSerializer);
-        template.setHashKeySerializer(stringRedisSerializer);
-        
-        // 设置value序列化器 - 使用StringRedisSerializer避免序列化问题
-        template.setValueSerializer(stringRedisSerializer);
-        template.setHashValueSerializer(stringRedisSerializer);
-        
-        // 设置默认序列化器
-        template.setDefaultSerializer(stringRedisSerializer);
-        
-        // 初始化
-        template.afterPropertiesSet();
-        
-        return template;
+        return redisTemplate;
     }
 
     /**
@@ -71,20 +80,24 @@ public class RedisConfig {
     }
 
     /**
-     * 创建Jackson序列化器
-     * 配置JSON序列化选项
+     * 缓存配置管理器
+     * 参考yuncheng项目的缓存配置
      * 
-     * @return GenericJackson2JsonRedisSerializer实例
+     * @param factory Redis连接工厂
+     * @return CacheManager实例
      */
-    private GenericJackson2JsonRedisSerializer createJacksonSerializer() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        
-        // 设置可见性
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        
-        // 启用默认类型
-        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
-        
-        return new GenericJackson2JsonRedisSerializer(objectMapper);
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory factory) {
+        // 配置序列化（缓存默认有效期 6小时）
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(6));
+        RedisCacheConfiguration redisCacheConfiguration = config.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
+        // 创建缓存管理器
+        RedisCacheManager cacheManager = RedisCacheManager.builder(RedisCacheWriter.lockingRedisCacheWriter(factory))
+                .cacheDefaults(redisCacheConfiguration)
+                .transactionAware()
+                .build();
+        return cacheManager;
     }
 }

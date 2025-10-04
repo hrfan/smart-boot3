@@ -1,11 +1,11 @@
 package com.smart.framework.security.filter;
 
+import com.smart.framework.security.service.CustomUserDetailsService;
 import com.smart.framework.security.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -70,6 +70,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                        
+                        // 刷新用户缓存过期时间（参考yuncheng项目）
+                        if (userDetailsService instanceof CustomUserDetailsService) {
+                            ((CustomUserDetailsService) userDetailsService).refreshUserCache(username);
+                        }
                         
                         log.debug("用户 {} 认证成功，角色: {}", username, Arrays.toString(roles));
                     }
