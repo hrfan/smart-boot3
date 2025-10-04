@@ -53,11 +53,7 @@
             <artifactId>smart-framework-mail</artifactId>
         </dependency>
 
-        <!-- Spring Boot Web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+        <!-- Spring Boot Web - 已通过core模块引入，无需重复声明 -->
 
         <!-- Spring Cloud Bootstrap -->
         <dependency>

@@ -36,6 +36,8 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <!-- SpringDoc OpenAPI版本 -->
         <springdoc.version>2.2.0</springdoc.version>
+        <!-- Spring Boot Admin版本 -->
+        <spring-boot-admin.version>3.2.0</spring-boot-admin.version>
         <!-- Lombok版本 -->
         <lombok.version>1.18.30</lombok.version>
         <!-- Commons IO版本 -->
@@ -49,6 +51,8 @@
         <!-- 通用工具类版本 -->
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
+        <!-- JWT版本 -->
+        <jwt.version>0.11.5</jwt.version>
         <!-- Spring Cloud Alibaba版本 -->
         <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
     </properties>
@@ -71,7 +75,7 @@
     <modules>
         <module>../smart-framework-parent</module>
         <module>../smart-api-parent</module>
-        <module>../smart-gateway</module>
+        <module>../smart-framework-cloud</module>
         <module>../smart-build</module>
     </modules>
 
@@ -285,6 +289,18 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+            <!-- Spring Boot Admin -->
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-server</artifactId>
+                <version>${spring-boot-admin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-client</artifactId>
+                <version>${spring-boot-admin.version}</version>
             </dependency>
 
             <!-- Lombok -->

@@ -39,7 +39,7 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         
-        <!-- Lombok -->
+        <!-- Lombok - 每个模块都需要单独添加 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
