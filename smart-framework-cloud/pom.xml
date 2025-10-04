@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>com.smart</groupId>
+        <artifactId>smart-framework-top</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../smart-framework-top/pom.xml</relativePath>
+    </parent>
+    
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>smart-framework-cloud</artifactId>
+    <packaging>pom</packaging>
+    <name>smart-framework-cloud</name>
+    <description>Smart Framework Cloud 微服务启动器集合</description>
+
+    <modules>
+        <module>smart-cloud-gateway</module>
+        <module>smart-cloud-system-starter</module>
+        <module>smart-cloud-boot-admin</module>
+    </modules>
+
+</project>

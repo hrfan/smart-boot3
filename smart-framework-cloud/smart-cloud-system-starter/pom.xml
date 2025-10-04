@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.smart</groupId>
+        <artifactId>smart-framework-cloud</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>smart-cloud-system-starter</artifactId>
+    <packaging>jar</packaging>
+    <name>smart-cloud-system-starter</name>
+    <description>Smart Cloud System Starter 系统管理微服务启动器</description>
+
+    <dependencies>
+        <!-- 平台最轻量启动，包括core、security、database模块即可 -->
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-database</artifactId>
+        </dependency>
+        
+        <!-- 其他框架模块 -->
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-file</artifactId>
+        </dependency>
+
+        <!-- 系统组件 -->
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-system</artifactId>
+        </dependency>
+
+        <!-- API实现 -->
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-system-api-local</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-system-api-remote</artifactId>
+        </dependency>
+
+        <!-- MySQL驱动 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Nacos注册发现 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+        
+        <!-- Spring Boot Admin客户端 -->
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-client</artifactId>
+        </dependency>
+        
+        <!-- 分布式配置 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- SpringDoc OpenAPI (Swagger) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- OkHttp for Nacos gRPC -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
