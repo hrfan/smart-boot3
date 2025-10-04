@@ -3,6 +3,7 @@ package com.smart.framework.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smart.framework.common.util.MenuTreeUtil;
 import com.smart.framework.core.result.Result;
+import com.smart.framework.security.cache.JwtTokenCacheService;
 import com.smart.framework.security.dto.UserLoginResponseDto;
 import com.smart.framework.security.entity.AuthSmartPermission;
 import com.smart.framework.security.entity.AuthSmartUser;
@@ -23,6 +24,7 @@ import java.util.List;
 /**
  * 自定义认证成功处理器
  * 处理用户登录成功后的逻辑
+ * 参考yuncheng项目，登录成功后将JWT Token缓存到Redis
  * 
  * @author smart-boot3
  * @since 1.0.0
@@ -35,6 +37,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     private final ObjectMapper objectMapper;
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    private final JwtTokenCacheService jwtTokenCacheService;
 
     /**
      * 构造函数
@@ -42,15 +45,20 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
      * @param objectMapper JSON对象映射器
      * @param jwtUtil JWT工具类
      * @param customUserDetailsService 用户详情服务
+     * @param jwtTokenCacheService JWT Token缓存服务
      */
-    public CustomAuthenticationSuccessHandler(ObjectMapper objectMapper, JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
+    public CustomAuthenticationSuccessHandler(ObjectMapper objectMapper, JwtUtil jwtUtil, 
+                                            CustomUserDetailsService customUserDetailsService,
+                                            JwtTokenCacheService jwtTokenCacheService) {
         this.objectMapper = objectMapper;
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
+        this.jwtTokenCacheService = jwtTokenCacheService;
     }
 
     /**
      * 认证成功处理
+     * 参考yuncheng项目，登录成功后将JWT Token缓存到Redis
      * 
      * @param request HTTP请求
      * @param response HTTP响应
@@ -67,6 +75,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         // 生成JWT令牌
         String token = jwtUtil.generateToken("", userDetails.getUsername());
         long expireTime = System.currentTimeMillis() + 86400000L; // 24小时后过期
+        
+        // 1. 登录成功后将用户的JWT生成的Token作为k、v存储到cache缓存里面
+        // 缓存有效期设置为Jwt有效时间的2倍
+        jwtTokenCacheService.cacheToken(token, 86400000L); // 24小时 * 2 = 48小时缓存
+        
+        log.info("JWT Token已缓存到Redis，用户：{}，Token：{}", userDetails.getUsername(), token);
         
         // 查询用户角色
         List<String> roles = customUserDetailsService.getUserRoles(userDetails.getId());
