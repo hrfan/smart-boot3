@@ -78,6 +78,14 @@
                 <artifactId>smart-framework-system</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+
+
+            <dependency>
+                <groupId>com.smart</groupId>
+                <artifactId>smart-system-api-remote</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

@@ -1,6 +1,8 @@
 package com.smart.framework.security.service;
 
+import com.smart.framework.security.entity.AuthSmartUser;
 import com.smart.framework.security.util.JwtUtil;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private static final Logger log = LoggerFactory.getLogger(CustomUserDetailsService.class);
 
+    @Resource
+    private AuthSmartUserService authSmartUserService;
     /**
      * 根据用户名查询用户信息
      * 
@@ -49,53 +53,42 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
         
         // TODO: 替换为实际的数据库查询
-        // User user = userService.findByUsername(username);
-        // if (user == null) {
-        //     throw new UsernameNotFoundException("用户不存在：" + username);
-        // }
+         AuthSmartUser user = authSmartUserService.findByUsername(username);
+         if (user == null) {
+             throw new UsernameNotFoundException("用户不存在：" + username);
+         }
         
         // TODO: 查询用户权限
-        // List<Permission> permissions = permissionService.findByUserId(user.getId());
-        // List<String> permissionCodes = permissions.stream()
-        //     .map(Permission::getCode)
-        //     .collect(Collectors.toList());
+        List<String> permissions = getUserPermissions(user.getId());
+
         
         // 临时权限列表 - 实际应该从数据库查询
-        List<String> permissionCodes = List.of(
-            "system:user:list",
-            "system:user:query",
-            "system:role:list",
-            "system:role:query",
-            "system:permission:list",
-            "system:permission:query"
-        );
-        
+//        List<String> permissionCodes = List.of(
+//            "system:user:list",
+//            "system:user:query",
+//            "system:role:list",
+//            "system:role:query",
+//            "system:permission:list",
+//            "system:permission:query"
+//        );
+//
         // 构建权限列表
-        String[] permissionArray = permissionCodes.toArray(new String[0]);
+        String[] permissionArray = permissions.toArray(new String[0]);
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(permissionArray);
+        user.setAuthorities(authorities);
+
+        // TODO: 创建用户对应菜单权限信息
+
+        // TODO： 创建用户对应角色权限信息
         
         // TODO: 创建实际的UserDetails实现类
         // 这里应该返回一个实现了UserDetails接口的用户对象
         // 包含用户名、密码、权限等信息
         
-        log.debug("用户信息加载完成，用户名：{}，权限数量：{}", username, permissionCodes.size());
-        
-        // 临时实现 - 创建一个简单的用户详情对象用于测试
-        // TODO: 替换为实际的UserDetails实现类
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hashedPassword = encoder.encode("123456"); // 默认密码: 123456
-        
-        log.info("为用户 {} 生成密码哈希: {}", username, hashedPassword);
-        
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(username)
-                .password(hashedPassword) // 默认密码: 123456
-                .authorities(authorities)
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(false)
-                .build();
+        log.debug("用户信息加载完成，用户名：{}，权限数量：{}", username, permissions.size());
+
+
+        return user;
     }
     
     /**
@@ -106,13 +99,15 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     public List<String> getUserPermissions(String userId) {
         log.debug("查询用户权限，用户ID：{}", userId);
-        
+
         // TODO: 实现根据用户ID查询权限的逻辑
         // 1. 查询用户角色
         // 2. 查询角色对应的权限
         // 3. 返回权限代码列表
-        
-        return List.of();
+        List<String> permissions = authSmartUserService.findByUserId(userId);
+
+        // 后续可能需要归并多个权限来源 如 租户、角色、用户本身的权限
+        return permissions;
     }
     
     /**

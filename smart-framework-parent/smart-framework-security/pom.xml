@@ -21,12 +21,12 @@
             <artifactId>smart-framework-core</artifactId>
         </dependency>
 
+        <!-- 继承数据库模块 -->
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-database</artifactId>
+        </dependency>
 
-        <!-- 引入 smart-framework-system -->
-<!--        <dependency>-->
-<!--            <groupId>com.smart</groupId>-->
-<!--            <artifactId>smart-framework-system</artifactId>-->
-<!--        </dependency>-->
 
         <!-- JWT -->
         <dependency>
@@ -41,7 +41,7 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
         </dependency>
-        
+
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -54,5 +54,34 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+
+        <!-- Servlet API -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Commons Lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <!-- 默认资源目录 -->
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- 将java目录中的XML文件作为资源 -->
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>

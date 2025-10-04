@@ -137,6 +137,20 @@
     </dependencies>
 
     <build>
+        <resources>
+            <!-- 默认资源目录 -->
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- 将java目录中的XML文件作为资源 -->
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        
         <plugins>
             <!-- Maven编译插件 -->
             <plugin>
