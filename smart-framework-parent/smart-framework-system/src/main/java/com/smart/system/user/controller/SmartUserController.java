@@ -3,8 +3,11 @@ package com.smart.system.user.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.smart.framework.common.util.SecurityUtils;
 import com.smart.framework.core.result.Result;
+import com.smart.framework.core.util.StringUtil;
 import com.smart.framework.database.query.QueryBuilder;
+import com.smart.system.permission.service.SmartPermissionService;
 import com.smart.system.user.entity.SmartUser;
 import com.smart.system.user.service.SmartUserService;
 import jakarta.annotation.Resource;
@@ -14,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * 用户信息控制器
@@ -31,6 +34,10 @@ public class SmartUserController {
 
     @Resource
     private SmartUserService smartUserService;
+
+    @Resource
+    private SmartPermissionService smartPermissionService;
+
 
     /**
      * 查询用户分页列表
@@ -94,5 +101,35 @@ public class SmartUserController {
     public Result<?> deleteBatch(@RequestBody @Valid List<String> ids) {
         boolean isSuccess = smartUserService.removeByIds(ids);
         return isSuccess ? Result.success("删除成功") : Result.error("删除失败");
+    }
+
+
+    @GetMapping("getInfo")
+    public Result<?> getInfo() {
+        String userId = SecurityUtils.getCurrentUserId();
+        if (StringUtil.isBlank(userId)){
+            return Result.error("用户未登录");
+        }
+        SmartUser user = smartUserService.getById(userId);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+        // 角色集合
+        List<String> roles = smartPermissionService.findRoleByUserId(user.getId());
+        // 权限集合
+        // 获取后端数据库中的权限集合
+        List<String> permissions = smartPermissionService.findByUserId(user.getId());
+        // TODO 对比前端传递的权限集合和后端数据库中的权限集合，是否一致 ,如果不一致,则更新前端传递的权限集合到后端数据库中
+        // if (!user.getPermissionList().equals(permissions)) {
+        //     loginUser.setPermissions(permissions);
+        //     tokenService.refreshToken(loginUser);
+        // }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("user", user);
+        data.put("roles", roles);
+        data.put("permissions", permissions);
+
+        return Result.success("查询成功", data);
     }
 }

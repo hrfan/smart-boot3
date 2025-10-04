@@ -27,5 +27,14 @@ public interface SmartPermissionService extends IService<SmartPermission> {
      * @return 权限标识列表
      */
     List<String> findByUserId(String id);
+
+
+    /**
+     * 根据用户ID查询角色标识列表
+     *
+     * @param id 用户ID
+     * @return 角色标识列表
+     */
+    List<String> findRoleByUserId(String id);
 }
 

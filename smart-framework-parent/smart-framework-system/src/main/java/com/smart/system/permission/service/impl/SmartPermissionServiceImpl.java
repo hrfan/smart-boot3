@@ -79,5 +79,16 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
         }
         return permissionCodes;
     }
+
+    /**
+     * 根据用户ID查询角色标识列表
+     *
+     * @param id 用户ID
+     * @return 角色标识列表
+     */
+    @Override
+    public List<String> findRoleByUserId(String id) {
+        return smartPermissionMapper.findRoleByUserId(id);
+    }
 }
 

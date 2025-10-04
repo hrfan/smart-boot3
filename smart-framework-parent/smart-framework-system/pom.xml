@@ -47,6 +47,12 @@
             <artifactId>smart-framework-security</artifactId>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-common</artifactId>
+        </dependency>
+
         <!-- 框架邮件模块 -->
         <dependency>
             <groupId>com.smart</groupId>

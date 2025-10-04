@@ -58,5 +58,20 @@
     </select>
 
 
+    <select id="findRoleByUserId" resultType="java.lang.String">
+        select
+            distinct
+            r.role_key
+        from
+            smart_role r
+                left join smart_user_role ur on r.id = ur.role_id
+                left join smart_user u on ur.user_id = u.id
+        where u.id = #{userId}
+          and r.status = '0'
+          and r.del_flag = '0'
+        order by r.role_sort asc
+    </select>
+
+
 </mapper>
 
