@@ -21,4 +21,17 @@
             <artifactId>smart-framework-core</artifactId>
         </dependency>
     </dependencies>
+    
+    <build>
+        <plugins>
+            <!-- 禁用Spring Boot插件，因为这是一个库模块 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

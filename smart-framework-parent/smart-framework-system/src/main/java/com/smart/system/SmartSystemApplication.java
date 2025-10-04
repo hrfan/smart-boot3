@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @EnableDiscoveryClient
 @ComponentScan(basePackages = {"com.smart"})
-@RestController
 public class SmartSystemApplication {
 
     /**
@@ -36,25 +35,4 @@ public class SmartSystemApplication {
         SpringApplication.run(SmartSystemApplication.class, args);
     }
 
-    /**
-     * 健康检查接口
-     * 
-     * @return 健康状态
-     */
-    @GetMapping("/health")
-    public String health() {
-        return "Smart System is running!";
-    }
-
-    /**
-     * Hello World接口
-     * 
-     * @return Hello World消息
-     */
-    @GetMapping("/hello")
-    public Result hello() {
-//        int  u =  1/0;
-        int i = 1/0;
-        return Result.success("响应成功！",null);
-    }
 }

@@ -5,7 +5,7 @@
     
     <parent>
         <groupId>com.smart</groupId>
-        <artifactId>smart-boot3</artifactId>
+        <artifactId>smart-api-parent</artifactId>
         <version>1.0.0</version>
     </parent>
     
@@ -15,54 +15,36 @@
     <description>smart系统API远程模块</description>
 
     <dependencies>
-        <!-- Spring Boot Starter -->
+        <!-- Spring Boot 基础依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-
-
+        <!-- 依赖本地API模块 -->
         <dependency>
             <groupId>com.smart</groupId>
             <artifactId>smart-system-api-local</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
-
-        <!-- Spring Cloud Gateway -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
-        </dependency>
-
-        <!-- Nacos Discovery -->
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-        </dependency>
-
-        <!-- Spring Cloud LoadBalancer (必需，用于lb://协议) -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
-        </dependency>
-        
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        
-        <!-- Spring Boot Validation -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
     </dependencies>
+    
+    <build>
+        <plugins>
+            <!-- 禁用Spring Boot插件，因为这是一个库模块 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

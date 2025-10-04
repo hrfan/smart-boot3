@@ -3,11 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     
-    <!-- 继承根项目 -->
+    <!-- 继承顶级父项目 -->
     <parent>
         <groupId>com.smart</groupId>
-        <artifactId>smart-boot3</artifactId>
+        <artifactId>smart-framework-top</artifactId>
         <version>1.0.0</version>
+        <relativePath>../smart-framework-top/pom.xml</relativePath>
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
@@ -29,63 +30,4 @@
         <module>smart-framework-system</module>
     </modules>
 
-    <!-- 依赖管理 -->
-    <dependencyManagement>
-        <dependencies>
-            <!-- 框架模块内部依赖 -->
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-database</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-security</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-redis</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-file</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-mail</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-ai</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-framework-system</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-
-
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-system-api-remote</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

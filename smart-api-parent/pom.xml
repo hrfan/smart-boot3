@@ -3,11 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     
-    <!-- 继承根项目 -->
+    <!-- 继承顶级父项目 -->
     <parent>
         <groupId>com.smart</groupId>
-        <artifactId>smart-boot3</artifactId>
+        <artifactId>smart-framework-top</artifactId>
         <version>1.0.0</version>
+        <relativePath>../smart-framework-top/pom.xml</relativePath>
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
@@ -22,45 +23,4 @@
         <module>smart-system-api-remote</module>
     </modules>
 
-    <!-- 依赖管理 -->
-    <dependencyManagement>
-        <dependencies>
-            <!-- API模块内部依赖 -->
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-system-api-local</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.smart</groupId>
-                <artifactId>smart-system-api-remote</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-
-
-
-            <!-- Spring Cloud Gateway -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-gateway</artifactId>
-            </dependency>
-
-            <!-- Nacos Discovery -->
-            <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-            </dependency>
-
-            <!-- Spring Cloud LoadBalancer (必需，用于lb://协议) -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-loadbalancer</artifactId>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

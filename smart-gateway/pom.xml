@@ -7,8 +7,9 @@
 
     <parent>
         <groupId>com.smart</groupId>
-        <artifactId>smart-boot3</artifactId>
+        <artifactId>smart-framework-top</artifactId>
         <version>1.0.0</version>
+        <relativePath>../smart-framework-top/pom.xml</relativePath>
     </parent>
 
     <artifactId>smart-gateway</artifactId>
