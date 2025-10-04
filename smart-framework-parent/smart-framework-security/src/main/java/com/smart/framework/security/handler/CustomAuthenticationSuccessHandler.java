@@ -1,23 +1,24 @@
 package com.smart.framework.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smart.framework.common.util.MenuTreeUtil;
 import com.smart.framework.core.result.Result;
-import com.smart.framework.core.result.ResultCode;
+import com.smart.framework.security.dto.UserLoginResponseDto;
+import com.smart.framework.security.entity.AuthSmartPermission;
+import com.smart.framework.security.entity.AuthSmartUser;
+import com.smart.framework.security.service.CustomUserDetailsService;
 import com.smart.framework.security.util.JwtUtil;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * 自定义认证成功处理器
@@ -33,16 +34,19 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final ObjectMapper objectMapper;
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
 
     /**
      * 构造函数
      * 
      * @param objectMapper JSON对象映射器
      * @param jwtUtil JWT工具类
+     * @param customUserDetailsService 用户详情服务
      */
-    public CustomAuthenticationSuccessHandler(ObjectMapper objectMapper, JwtUtil jwtUtil) {
+    public CustomAuthenticationSuccessHandler(ObjectMapper objectMapper, JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
         this.objectMapper = objectMapper;
         this.jwtUtil = jwtUtil;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     /**
@@ -58,34 +62,50 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         log.info("用户登录成功：{}", authentication.getName());
         
         // 获取用户信息
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        AuthSmartUser userDetails = (AuthSmartUser) authentication.getPrincipal();
         
-        // TODO: 生成JWT令牌
-        // 1. 使用JwtUtil生成访问令牌
-        // 2. 生成刷新令牌（可选）
-        // 3. 设置令牌过期时间
-        
+        // 生成JWT令牌
         String token = jwtUtil.generateToken("", userDetails.getUsername());
         long expireTime = System.currentTimeMillis() + 86400000L; // 24小时后过期
         
-        // TODO: 将令牌存储到Redis缓存
-        // 1. 存储访问令牌
-        // 2. 存储用户会话信息
-        // 3. 设置过期时间
+        // 查询用户角色
+        List<String> roles = customUserDetailsService.getUserRoles(userDetails.getId());
         
-        // 构建响应数据
-        Map<String, Object> data = new HashMap<>();
-        data.put("token", token);
-        data.put("expireTime", expireTime);
-        data.put("username", userDetails.getUsername());
-        data.put("authorities", userDetails.getAuthorities());
+        // 查询用户权限
+        List<String> permissions = customUserDetailsService.getUserPermissions(userDetails.getId());
         
-        // TODO: 添加用户详细信息
-        // data.put("userInfo", userInfo);
-        // data.put("permissions", permissions);
-        // data.put("roles", roles);
+        // 查询用户菜单权限
+        List<AuthSmartPermission> flatMenus = customUserDetailsService.getUserMenus(userDetails.getId());
         
-        Result<Map<String, Object>> result = Result.success("登录成功", data);
+        // 将扁平菜单列表转换为树形结构
+        List<AuthSmartPermission> menuTree = MenuTreeUtil.buildMenuTree(flatMenus);
+        
+        log.debug("用户菜单权限处理完成，扁平菜单数量：{}，树形菜单根节点数量：{}", 
+                flatMenus.size(), menuTree.size());
+        
+        // 构建用户登录响应数据
+        UserLoginResponseDto userLoginResponse = new UserLoginResponseDto();
+        userLoginResponse.setId(userDetails.getId());
+        userLoginResponse.setDeptId(userDetails.getDeptId());
+        userLoginResponse.setUserName(userDetails.getUsername());
+        userLoginResponse.setNickName(userDetails.getNickName());
+        userLoginResponse.setUserType(userDetails.getUserType());
+        userLoginResponse.setEmail(userDetails.getEmail());
+        userLoginResponse.setPhonenumber(userDetails.getPhonenumber());
+        userLoginResponse.setSex(userDetails.getSex());
+        userLoginResponse.setAvatar(userDetails.getAvatar());
+        userLoginResponse.setStatus(userDetails.getStatus());
+        userLoginResponse.setLoginIp(userDetails.getLoginIp());
+        userLoginResponse.setLoginDate(userDetails.getLoginDate());
+        userLoginResponse.setRemark(userDetails.getRemark());
+        userLoginResponse.setTenantId(userDetails.getTenantId());
+        userLoginResponse.setToken(token);
+        userLoginResponse.setExpireTime(expireTime);
+        userLoginResponse.setRoles(roles);
+        userLoginResponse.setPermissions(permissions);
+        userLoginResponse.setMenus(menuTree);
+        
+        Result<UserLoginResponseDto> result = Result.success("登录成功", userLoginResponse);
         
         // 设置响应头
         response.setContentType("application/json;charset=UTF-8");
@@ -97,6 +117,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         outputStream.flush();
         outputStream.close();
         
-        log.info("用户登录成功响应已发送：{}", authentication.getName());
+        log.info("用户登录成功响应已发送：{}，角色数量：{}，权限数量：{}，树形菜单根节点数量：{}", 
+                authentication.getName(), roles.size(), permissions.size(), menuTree.size());
     }
 }

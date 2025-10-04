@@ -83,7 +83,6 @@
 
 
     <select id="findByUserId" resultType="java.lang.String">
-
         select
             distinct
             perms
@@ -94,6 +93,68 @@
                 left join smart_user_role ur on r.id = ur.role_id
                 left join smart_user u on ur.user_id = u.id
         where u.id = #{id}
+    </select>
+
+    <!-- 根据用户ID查询用户角色列表 -->
+    <select id="findRolesByUserId" resultType="java.lang.String">
+        select
+            distinct
+            r.role_key
+        from
+            smart_role r
+                left join smart_user_role ur on r.id = ur.role_id
+                left join smart_user u on ur.user_id = u.id
+        where u.id = #{userId}
+          and r.status = '0'
+          and r.del_flag = '0'
+        order by r.role_sort asc
+    </select>
+
+    <!-- 根据用户ID查询用户菜单权限列表 -->
+    <select id="findMenusByUserId" resultMap="Base_Permission_ResultMap">
+        select
+            distinct
+            p.id,
+            p.menu_name,
+            p.parent_id,
+            p.order_num,
+            p.path,
+            p.component,
+            p.query,
+            p.route_name,
+            p.is_frame,
+            p.frame_url,
+            p.is_cache,
+            p.menu_type,
+            p.visible,
+            p.status,
+            p.perms,
+            p.icon,
+            p.create_by,
+            p.create_time,
+            p.create_user_name,
+            p.update_by,
+            p.update_time,
+            p.update_user_name,
+            p.remark,
+            p.is_leaf,
+            p.always_show,
+            p.color,
+            p.default_shortcut_menu,
+            p.reminder_menu,
+            p.tenant_menu,
+            p.allow_visitor_access
+        from
+            smart_permission p
+                left join smart_role_permission rp on p.id = rp.permission_id
+                left join smart_role r on rp.role_id = r.id
+                left join smart_user_role ur on r.id = ur.role_id
+                left join smart_user u on ur.user_id = u.id
+        where u.id = #{userId}
+          and p.status = '0'
+          and p.menu_type in ('M', 'C')
+          and p.visible = '0'
+        order by p.order_num asc
     </select>
 
 </mapper>

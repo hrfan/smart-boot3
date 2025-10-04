@@ -21,6 +21,12 @@
             <artifactId>smart-framework-core</artifactId>
         </dependency>
 
+        <!-- 继承通用模块 -->
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-framework-common</artifactId>
+        </dependency>
+
         <!-- 继承数据库模块 -->
         <dependency>
             <groupId>com.smart</groupId>

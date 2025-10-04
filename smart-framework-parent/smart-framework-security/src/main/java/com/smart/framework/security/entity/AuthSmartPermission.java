@@ -2,6 +2,7 @@ package com.smart.framework.security.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.smart.framework.common.util.MenuTreeUtil;
 import com.smart.framework.database.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +20,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("smart_permission")
-public class AuthSmartPermission extends BaseEntity {
+public class AuthSmartPermission extends BaseEntity implements MenuTreeUtil.MenuPermission {
 
 
 
@@ -219,4 +220,9 @@ public class AuthSmartPermission extends BaseEntity {
      */
     @TableField(exist = false)
     private List<AuthSmartPermission> children;
+
+    @Override
+    public void setChildren(List<? extends MenuTreeUtil.MenuPermission> children) {
+        this.children = (List<AuthSmartPermission>) children;
+    }
 }

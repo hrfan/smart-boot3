@@ -1,18 +1,12 @@
 package com.smart.framework.database.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-
 
 import java.io.Serializable;
-import java.util.Date;
 
 
 /**
@@ -42,6 +36,7 @@ public abstract class BaseEntity implements Serializable {
      * 
      * @return 是否为新记录
      */
+    @JsonIgnore
     public boolean isNew() {
         return this.id == null || this.id.isEmpty();
     }

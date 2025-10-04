@@ -1,7 +1,7 @@
 package com.smart.framework.security.service;
 
+import com.smart.framework.security.entity.AuthSmartPermission;
 import com.smart.framework.security.entity.AuthSmartUser;
-import com.smart.framework.security.util.JwtUtil;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,7 +11,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -95,8 +94,27 @@ public class CustomUserDetailsService implements UserDetailsService {
         
         // 1. 查询用户角色关联表
         // 2. 返回角色代码列表
+        List<String> roles = authSmartUserService.findRolesByUserId(userId);
         
-        return List.of();
+        log.debug("用户角色查询完成，用户ID：{}，角色数量：{}", userId, roles.size());
+        return roles;
+    }
+    
+    /**
+     * 根据用户ID查询用户菜单权限
+     * 
+     * @param userId 用户ID
+     * @return 菜单权限列表
+     */
+    public List<AuthSmartPermission> getUserMenus(String userId) {
+        log.debug("查询用户菜单权限，用户ID：{}", userId);
+        
+        // 1. 查询用户菜单权限
+        // 2. 返回菜单权限列表
+        List<AuthSmartPermission> menus = authSmartUserService.findMenusByUserId(userId);
+        
+        log.debug("用户菜单权限查询完成，用户ID：{}，菜单数量：{}", userId, menus.size());
+        return menus;
     }
 }
 
