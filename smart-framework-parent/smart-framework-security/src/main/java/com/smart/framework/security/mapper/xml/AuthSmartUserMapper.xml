@@ -93,6 +93,8 @@
                 left join smart_user_role ur on r.id = ur.role_id
                 left join smart_user u on ur.user_id = u.id
         where u.id = #{id}
+          and perms is not null
+          and perms != ''
     </select>
 
     <!-- 根据用户ID查询用户角色列表 -->

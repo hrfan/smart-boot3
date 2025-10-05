@@ -82,13 +82,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         
         log.info("JWT Token已缓存到Redis，用户：{}，Token：{}", userDetails.getUsername(), token);
         
-        // 查询用户角色
+        // 2. 认证成功后缓存用户信息到Redis
+        customUserDetailsService.cacheUserAfterAuthentication(userDetails.getUsername());
+        
+        // 3. 从缓存中获取用户信息（避免重复查询数据库）
         List<String> roles = customUserDetailsService.getUserRoles(userDetails.getId());
-        
-        // 查询用户权限
         List<String> permissions = customUserDetailsService.getUserPermissions(userDetails.getId());
-        
-        // 查询用户菜单权限
         List<AuthSmartPermission> flatMenus = customUserDetailsService.getUserMenus(userDetails.getId());
         
         // 将扁平菜单列表转换为树形结构

@@ -70,22 +70,27 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 4. 查询用户角色和权限
         List<String> permissions = getUserPermissions(user.getId());
         
-        // 5. 构建UserDetails对象
+        // 5. 过滤空权限值，避免AuthorityUtils.createAuthorityList异常
+        permissions = permissions.stream()
+                .filter(perm -> StringUtil.isNotBlank(perm))
+                .collect(java.util.stream.Collectors.toList());
+        
+        // 6. 构建UserDetails对象
         String[] permissionArray = permissions.toArray(new String[0]);
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(permissionArray);
         user.setAuthorities(authorities);
         
-        // 6. 将用户信息缓存到Redis
-        userCacheService.cacheUser(username, user);
+        // 注意：此时用户还未通过密码验证，不应该缓存用户信息
+        // 缓存将在认证成功后由认证成功处理器处理
         
-        log.debug("用户信息加载完成并已缓存，用户名：{}，权限数量：{}", username, permissions.size());
+        log.debug("用户信息加载完成，用户名：{}，权限数量：{}", username, permissions.size());
         
         return user;
     }
     
     /**
      * 根据用户ID查询用户权限
-     * 优先从缓存获取，缓存未命中时查询数据库并缓存结果
+     * 注意：此方法在认证过程中调用，不应该缓存权限信息
      * 
      * @param userId 用户ID
      * @return 权限列表
@@ -93,25 +98,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public List<String> getUserPermissions(String userId) {
         log.debug("查询用户权限，用户ID：{}", userId);
         
-        // 1. 优先从缓存获取权限信息
-        AuthSmartUser user = authSmartUserService.findByUsername(userId);
-        if (user != null) {
-            List<String> cachedPermissions = userCacheService.getCachedUserPermissions(user.getUsername());
-            if (cachedPermissions != null) {
-                log.debug("从缓存获取用户权限成功，用户ID：{}", userId);
-                return cachedPermissions;
-            }
-        }
-        
-        // 2. 缓存未命中，从数据库查询权限
+        // 直接从数据库查询权限，不进行缓存
+        // 缓存将在认证成功后由认证成功处理器处理
         List<String> permissions = authSmartUserService.findByUserId(userId);
         
-        // 3. 将权限信息缓存到Redis
-        if (user != null) {
-            userCacheService.cacheUserPermissions(user.getUsername(), permissions);
-        }
-        
-        log.debug("用户权限查询完成并已缓存，用户ID：{}，权限数量：{}", userId, permissions.size());
+        log.debug("用户权限查询完成，用户ID：{}，权限数量：{}", userId, permissions.size());
         return permissions;
     }
     
@@ -169,6 +160,42 @@ public class CustomUserDetailsService implements UserDetailsService {
     public void refreshUserCache(String username) {
         userCacheService.refreshUserCache(username);
         log.debug("用户缓存已刷新，用户名：{}", username);
+    }
+    
+    /**
+     * 认证成功后缓存用户信息
+     * 此方法应在用户通过密码验证后调用
+     * 
+     * @param username 用户名
+     */
+    public void cacheUserAfterAuthentication(String username) {
+        log.debug("开始缓存认证成功后的用户信息，用户名：{}", username);
+        
+        // 1. 查询用户基本信息
+        AuthSmartUser user = authSmartUserService.findByUsername(username);
+        if (user == null) {
+            log.warn("用户不存在，无法缓存：{}", username);
+            return;
+        }
+        
+        // 2. 查询用户权限
+        List<String> permissions = authSmartUserService.findByUserId(user.getId());
+        permissions = permissions.stream()
+                .filter(perm -> StringUtil.isNotBlank(perm))
+                .collect(java.util.stream.Collectors.toList());
+        
+        // 3. 构建权限列表
+        String[] permissionArray = permissions.toArray(new String[0]);
+        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(permissionArray);
+        user.setAuthorities(authorities);
+        
+        // 4. 缓存用户信息
+        userCacheService.cacheUser(username, user);
+        
+        // 5. 缓存权限信息
+        userCacheService.cacheUserPermissions(username, permissions);
+        
+        log.debug("认证成功后用户信息缓存完成，用户名：{}，权限数量：{}", username, permissions.size());
     }
 }
 
