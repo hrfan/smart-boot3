@@ -165,24 +165,54 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
             RouterVo router = new RouterVo();
             
             // 设置路由基本信息
+            router.setHidden("1".equals(menu.getVisible()));
             router.setName(getRouteName(menu));
             router.setPath(getRouterPath(menu));
-            router.setHidden("1".equals(menu.getVisible()));
-            router.setRedirect("noRedirect");
             router.setComponent(getComponent(menu));
             router.setQuery(menu.getQuery());
-            router.setAlwaysShow(menu.getAlwaysShow());
             router.setMeta(getMeta(menu));
             
-            // 处理子菜单
+            // 获取子菜单
             List<? extends MenuTreeUtil.MenuPermission> children = menu.getChildren();
+            List<SmartPermission> smartChildren = null;
             if (CollectionUtil.isNotEmpty(children)) {
-                // 转换为SmartPermission类型
-                List<SmartPermission> smartChildren = children.stream()
+                smartChildren = children.stream()
                     .filter(child -> child instanceof SmartPermission)
                     .map(child -> (SmartPermission) child)
                     .collect(Collectors.toList());
+            }
+            
+            // 根据菜单类型和子菜单情况设置不同的属性
+            if (CollectionUtil.isNotEmpty(smartChildren) && "M".equals(menu.getMenuType())) {
+                // 目录类型且有子菜单
+                router.setAlwaysShow(true);
+                router.setRedirect("noRedirect");
                 router.setChildren(buildMenus(smartChildren));
+            } else if (isMenuFrame(menu)) {
+                // 菜单框架类型
+                router.setMeta(null);
+                List<RouterVo> childrenList = new ArrayList<>();
+                RouterVo childRouter = new RouterVo();
+                childRouter.setPath(menu.getPath());
+                childRouter.setComponent(menu.getComponent());
+                childRouter.setName(getRouteName(menu.getRouteName(), menu.getPath()));
+                childRouter.setMeta(getMeta(menu));
+                childRouter.setQuery(menu.getQuery());
+                childrenList.add(childRouter);
+                router.setChildren(childrenList);
+            } else if ("0".equals(menu.getParentId()) && isInnerLink(menu)) {
+                // 外链类型
+                router.setMeta(new MetaVo(menu.getMenuName(), menu.getIcon()));
+                router.setPath("/");
+                List<RouterVo> childrenList = new ArrayList<>();
+                RouterVo childRouter = new RouterVo();
+                String routerPath = innerLinkReplaceEach(menu.getPath());
+                childRouter.setPath(routerPath);
+                childRouter.setComponent("InnerLink");
+                childRouter.setName(getRouteName(menu.getRouteName(), routerPath));
+                childRouter.setMeta(getMeta(menu, menu.getPath()));
+                childrenList.add(childRouter);
+                router.setChildren(childrenList);
             }
             
             routers.add(router);
@@ -194,56 +224,102 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
 
     /**
      * 获取路由名称
+     * 参考mengyuan项目的getRouteName方法
      */
     private String getRouteName(SmartPermission menu) {
-        String routeName = menu.getRouteName();
-        if (routeName == null || routeName.trim().isEmpty()) {
-            // 如果没有设置路由名称，使用菜单名称的首字母大写
-            String menuName = menu.getMenuName();
-            if (menuName != null && !menuName.trim().isEmpty()) {
-                return menuName.substring(0, 1).toUpperCase() + menuName.substring(1);
-            }
+        // 非外链并且是一级目录（类型为目录）
+        if (isMenuFrame(menu)) {
+            return "";
         }
-        return routeName;
+        return getRouteName(menu.getRouteName(), menu.getPath());
+    }
+
+    /**
+     * 获取路由名称，如没有配置路由名称则取路由地址
+     * 参考mengyuan项目的getRouteName方法
+     * 
+     * @param name 路由名称
+     * @param path 路由地址
+     * @return 路由名称（驼峰格式）
+     */
+    private String getRouteName(String name, String path) {
+        String routerName = (name != null && !name.trim().isEmpty()) ? name : path;
+        if (routerName == null || routerName.trim().isEmpty()) {
+            return "";
+        }
+        // 首字母大写
+        return routerName.substring(0, 1).toUpperCase() + routerName.substring(1);
     }
 
     /**
      * 获取路由路径
+     * 参考mengyuan项目的getRouterPath方法
      */
     private String getRouterPath(SmartPermission menu) {
-        String path = menu.getPath();
-        if (path == null || path.trim().isEmpty()) {
-            return "/";
+        String routerPath = menu.getPath();
+        // 内链打开外网方式
+        if (!"0".equals(menu.getParentId()) && isInnerLink(menu)) {
+            routerPath = innerLinkReplaceEach(routerPath);
         }
-        return path;
+        // 非外链并且是一级目录（类型为目录）
+        if ("0".equals(menu.getParentId()) && "M".equals(menu.getMenuType()) && "1".equals(menu.getIsFrame())) {
+            routerPath = "/" + menu.getPath();
+        }
+        // 非外链并且是一级目录（类型为菜单）
+        else if (isMenuFrame(menu)) {
+            routerPath = "/";
+        }
+        return routerPath;
     }
 
     /**
-     * 获取组件路径
+     * 获取组件信息
+     * 参考mengyuan项目的getComponent方法
+     * 
+     * @param menu 菜单信息
+     * @return 组件信息
      */
     private String getComponent(SmartPermission menu) {
-        String component = menu.getComponent();
-        if (component == null || component.trim().isEmpty()) {
-            // 如果是目录类型，使用Layout组件
-            if ("M".equals(menu.getMenuType())) {
-                return "Layout";
-            }
-            // 如果是菜单类型，使用默认组件
-            return "index";
+        String component = "Layout";
+        if (menu.getComponent() != null && !menu.getComponent().trim().isEmpty() && !isMenuFrame(menu)) {
+            component = menu.getComponent();
+        } else if ((menu.getComponent() == null || menu.getComponent().trim().isEmpty()) && !"0".equals(menu.getParentId()) && isInnerLink(menu)) {
+            component = "InnerLink";
+        } else if ((menu.getComponent() == null || menu.getComponent().trim().isEmpty()) && isParentView(menu)) {
+            component = "ParentView";
         }
         return component;
     }
 
     /**
+     * 是否为parent_view组件
+     * 参考mengyuan项目的isParentView方法
+     * 
+     * @param menu 菜单信息
+     * @return 结果
+     */
+    private boolean isParentView(SmartPermission menu) {
+        return !"0".equals(menu.getParentId()) && "M".equals(menu.getMenuType());
+    }
+
+    /**
      * 获取路由元信息
+     * 参考mengyuan项目的MetaVo构造方法
      */
     private MetaVo getMeta(SmartPermission menu) {
+        return new MetaVo(menu.getMenuName(), menu.getIcon(), "1".equals(menu.getIsCache()), menu.getPath());
+    }
+
+    /**
+     * 获取路由元信息（重载方法）
+     * 参考mengyuan项目的MetaVo构造方法
+     */
+    private MetaVo getMeta(SmartPermission menu, String link) {
         MetaVo meta = new MetaVo();
-        
         meta.setTitle(menu.getMenuName());
-        meta.setIcon(menu.getIcon() != null ? menu.getIcon() : "");
+        meta.setIcon(menu.getIcon());
         meta.setNoCache("1".equals(menu.getIsCache()));
-        
+        meta.setLink(link);
         return meta;
     }
 
@@ -265,7 +341,7 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
 
             log.info("获取用户路由菜单，用户ID：{}", userId);
 
-            // 查询用户菜单权限列表
+            // 查询用户菜单权限列表（扁平列表）
             List<SmartPermission> menus = selectMenuTreeByUserId(userId);
             
             if (CollectionUtil.isEmpty(menus)) {
@@ -273,11 +349,14 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
                 return new ArrayList<>();
             }
 
+            // 构建树形结构，参考mengyuan项目的getChildPerms方法
+            List<SmartPermission> menuTree = getChildPerms(menus, "0");
+            
             // 构建路由菜单
-            List<RouterVo> routers = buildMenus(menus);
+            List<RouterVo> routers = buildMenus(menuTree);
 
-            log.info("用户路由菜单获取成功，用户ID：{}，菜单数量：{}，路由数量：{}", 
-                    userId, menus.size(), routers.size());
+            log.info("用户路由菜单获取成功，用户ID：{}，菜单数量：{}，树形根节点数量：{}，路由数量：{}", 
+                    userId, menus.size(), menuTree.size(), routers.size());
 
             return routers;
 
@@ -285,6 +364,119 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
             log.error("获取用户路由菜单失败", e);
             return new ArrayList<>();
         }
+    }
+
+    /**
+     * 根据父节点的ID获取所有子节点
+     * 参考mengyuan项目的getChildPerms方法
+     * 
+     * @param list 分类表
+     * @param parentId 传入的父节点ID
+     * @return 树形结构列表
+     */
+    public List<SmartPermission> getChildPerms(List<SmartPermission> list, String parentId) {
+        List<SmartPermission> returnList = new ArrayList<>();
+        for (Iterator<SmartPermission> iterator = list.iterator(); iterator.hasNext();) {
+            SmartPermission t = iterator.next();
+            // 一、根据传入的某个父节点ID,遍历该父节点的所有子节点
+            if (parentId.equals(t.getParentId())) {
+                recursionFn(list, t);
+                returnList.add(t);
+            }
+        }
+        return returnList;
+    }
+
+    /**
+     * 递归列表
+     * 参考mengyuan项目的recursionFn方法
+     * 
+     * @param list 分类表
+     * @param t 子节点
+     */
+    private void recursionFn(List<SmartPermission> list, SmartPermission t) {
+        // 得到子节点列表
+        List<SmartPermission> childList = getChildList(list, t);
+        t.setChildren(childList);
+        for (SmartPermission tChild : childList) {
+            if (hasChild(list, tChild)) {
+                recursionFn(list, tChild);
+            }
+        }
+    }
+
+    /**
+     * 得到子节点列表
+     * 参考mengyuan项目的getChildList方法
+     */
+    private List<SmartPermission> getChildList(List<SmartPermission> list, SmartPermission t) {
+        List<SmartPermission> tlist = new ArrayList<>();
+        Iterator<SmartPermission> it = list.iterator();
+        while (it.hasNext()) {
+            SmartPermission n = it.next();
+            if (t.getId().equals(n.getParentId())) {
+                tlist.add(n);
+            }
+        }
+        return tlist;
+    }
+
+    /**
+     * 判断是否有子节点
+     * 参考mengyuan项目的hasChild方法
+     */
+    private boolean hasChild(List<SmartPermission> list, SmartPermission t) {
+        return getChildList(list, t).size() > 0;
+    }
+
+    /**
+     * 是否为菜单框架
+     * 参考mengyuan项目的isMenuFrame方法
+     * 
+     * @param menu 菜单信息
+     * @return 结果
+     */
+    private boolean isMenuFrame(SmartPermission menu) {
+        return "0".equals(menu.getParentId()) && "C".equals(menu.getMenuType()) && "1".equals(menu.getIsFrame());
+    }
+
+    /**
+     * 是否为内链组件
+     * 参考mengyuan项目的isInnerLink方法
+     * 
+     * @param menu 菜单信息
+     * @return 结果
+     */
+    private boolean isInnerLink(SmartPermission menu) {
+        return "1".equals(menu.getIsFrame()) && isHttp(menu.getPath());
+    }
+
+    /**
+     * 判断是否为http链接
+     * 
+     * @param path 路径
+     * @return 结果
+     */
+    private boolean isHttp(String path) {
+        return path != null && (path.startsWith("http://") || path.startsWith("https://"));
+    }
+
+    /**
+     * 内链域名特殊字符替换
+     * 参考mengyuan项目的innerLinkReplaceEach方法
+     * 
+     * @param path 路径
+     * @return 替换后的内链域名
+     */
+    private String innerLinkReplaceEach(String path) {
+        if (path == null) {
+            return "";
+        }
+        return path.replace("http://", "")
+                  .replace("https://", "")
+                  .replace("www.", "")
+                  .replace(".", "/")
+                  .replace(":", "/");
     }
 }
 
