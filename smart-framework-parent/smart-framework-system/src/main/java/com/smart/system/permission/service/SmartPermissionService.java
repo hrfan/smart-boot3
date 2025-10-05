@@ -73,5 +73,19 @@ public interface SmartPermissionService extends IService<SmartPermission> {
      */
     List<RouterVo> getRouters();
 
+     /**
+     * 根据用户ID查询菜单权限树 不包含按钮权限
+     * @param smartPermission 菜单权限查询条件
+     * @return 菜单权限树
+     */
+    List<SmartPermission> selectMenuTree(SmartPermission smartPermission);
+
+
+    /**
+     * 根据查询条件获取菜单权限列表
+     * @param smartPermission 查询条件
+     * @return 菜单权限列表
+     */
+    List<SmartPermission> getList(SmartPermission smartPermission);
 }
 

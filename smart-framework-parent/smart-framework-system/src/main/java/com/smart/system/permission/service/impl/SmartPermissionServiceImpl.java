@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.smart.framework.common.util.MenuTreeUtil;
 import com.smart.framework.common.util.SecurityUtils;
+import com.smart.framework.core.exception.ErrorException;
+import com.smart.framework.core.result.ResultCode;
 import com.smart.system.permission.entity.SmartPermission;
 import com.smart.system.permission.mapper.SmartPermissionMapper;
 import com.smart.system.permission.service.SmartPermissionService;
@@ -56,8 +58,9 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
     @Transactional(rollbackFor = Exception.class)
     public SmartPermission update(SmartPermission smartPermission) {
         // 从spring security获取当前登录用户ID
-        String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-        smartPermission.setUpdateBy(currentUserId);
+        String username = SecurityUtils.getCurrentUsername();
+        smartPermission.setUpdateBy(username);
+        smartPermission.setUpdateTime(new Date());
         boolean b = updateById(smartPermission);
         if (b) {
             return smartPermission;
@@ -364,6 +367,42 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
             log.error("获取用户路由菜单失败", e);
             return new ArrayList<>();
         }
+    }
+
+
+    /**
+     * 根据用户ID查询菜单权限树 不包含按钮权限
+     * @param smartPermission 菜单权限查询条件
+     * @return 菜单权限树
+     */
+    @Override
+    public List<SmartPermission> selectMenuTree(SmartPermission smartPermission) {
+        // 从数据库查询用户菜单权限列表（扁平列表）
+        String userId = SecurityUtils.getCurrentUserId();
+        List<SmartPermission> menus = smartPermissionMapper.selectMenuTreeByUserId(userId);
+        if (CollectionUtil.isEmpty(menus)) {
+            throw new ErrorException(ResultCode.ERROR, "用户无菜单权限");
+        }
+        // 构建树形结构
+        return getChildPerms(menus, "0");
+    }
+
+
+    /**
+     * 根据查询条件获取菜单权限列表
+     * @param smartPermission 查询条件
+     * @return 菜单权限列表
+     */
+    @Override
+    public List<SmartPermission> getList(SmartPermission smartPermission) {
+        // TODO 此处应该判断是否是管理员，如果是管理员 应该可以看到全部的菜单
+
+        // 从数据库查询菜单权限列表（扁平列表）
+        List<SmartPermission> smartPermissions = smartPermissionMapper.getList(smartPermission);
+        if (CollectionUtil.isEmpty(smartPermissions)) {
+            throw new ErrorException(ResultCode.ERROR, "无菜单权限");
+        }
+        return smartPermissions;
     }
 
     /**

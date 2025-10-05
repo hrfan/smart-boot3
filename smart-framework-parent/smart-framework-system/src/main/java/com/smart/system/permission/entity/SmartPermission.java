@@ -233,4 +233,11 @@ public class SmartPermission extends BaseEntity implements MenuTreeUtil.MenuPerm
     public void setChildren(List<? extends MenuTreeUtil.MenuPermission> children) {
         this.children = (List<SmartPermission>) children;
     }
+
+
+    /**
+     * 用户ID
+     */
+    @TableField(exist = false)
+    private String userId;
 }

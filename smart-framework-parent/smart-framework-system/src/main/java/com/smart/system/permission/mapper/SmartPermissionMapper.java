@@ -41,5 +41,13 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
      * @return 菜单权限列表
      */
     List<SmartPermission> selectMenuTreeByUserId(@Param("userId") String userId);
+
+
+    /**
+     * 根据查询条件获取菜单权限列表
+     * @param smartPermission 查询条件
+     * @return 菜单权限列表
+     */
+    List<SmartPermission> getList(SmartPermission smartPermission);
 }
 

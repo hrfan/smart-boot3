@@ -3,6 +3,7 @@ package com.smart.system.permission.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.smart.framework.common.util.SecurityUtils;
 import com.smart.framework.core.result.Result;
 import com.smart.framework.database.query.QueryBuilder;
 import com.smart.system.permission.entity.SmartPermission;
@@ -52,7 +53,7 @@ public class SmartPermissionController {
      * @param req  HTTP请求对象，用于获取查询参数（主要用来构建查询条件）
      * @return 分页列表结果
      */
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/listPage", method = RequestMethod.GET)
     public Result<IPage<SmartPermission>> queryPageList(SmartPermission smartPermission,
                                                         @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
                                                         @RequestParam(name="pageSize", defaultValue="20") Integer pageSize,
@@ -61,6 +62,21 @@ public class SmartPermissionController {
         Page<SmartPermission> page = new Page<SmartPermission>(pageNo, pageSize);
         IPage<SmartPermission> pageList = smartPermissionService.page(page, queryWrapper);
         return Result.success("查询成功", pageList);
+    }
+
+
+
+
+
+    /**
+     * 查询菜单权限列表
+     * @param smartPermission 查询参数对象，用于构建查询条件
+     * @return 菜单权限列表结果
+     */
+    @RequestMapping(value = "list", method = RequestMethod.POST)
+    public Result<List<SmartPermission>> list(@RequestBody SmartPermission smartPermission) {
+        List<SmartPermission> list = smartPermissionService.getList(smartPermission);
+        return Result.success("查询成功", list);
     }
 
 
@@ -83,22 +99,46 @@ public class SmartPermissionController {
      * @param params 菜单权限实体对象，包含更新的菜单权限信息
      * @return 操作结果，包含操作成功标志和操作结果数据
      */
-    @RequestMapping(value = "update/{id}",method = RequestMethod.PUT)
-    public Result<?> update(@PathVariable(name="id",required=true) String id, @RequestBody @Valid SmartPermission params) {
+    @RequestMapping(value = "update",method = RequestMethod.PUT)
+    public Result<?> update(@RequestBody @Valid SmartPermission params) {
         SmartPermission smartPermission = smartPermissionService.update(params);
         return smartPermission != null ? Result.success("更新成功", smartPermission) : Result.error("更新失败");
     }
 
 
+    /**
+     * 根据id查询菜单权限详情
+     * @param id 菜单权限ID，用于指定要查询的菜单权限
+     * @return 菜单权限详情结果
+     */
+    @RequestMapping(value = "/getPermissionById/{id}", method = RequestMethod.GET)
+    public Result<SmartPermission> detail(@PathVariable(name="id",required=true) String id) {
+        SmartPermission smartPermission = smartPermissionService.getById(id);
+        return Result.success("查询成功", smartPermission);
+    }
 
 
-     /**
+    /**
+     * 获取菜单树列表 不包含按钮
+     */
+    @RequestMapping(value = "/listTree", method = RequestMethod.POST)
+    public Result<List<SmartPermission>> listTree(@RequestBody SmartPermission smartPermission) {
+        // 查询菜单树
+        List<SmartPermission> menus = smartPermissionService.selectMenuTree(smartPermission);
+        return Result.success("查询成功", menus);
+    }
+
+
+
+
+
+    /**
      * 删除菜单权限
      * @param id 菜单权限ID，用于指定要删除的菜单权限
      * @return 操作结果，包含操作成功标志和操作结果数据
      */
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public Result<?>  delete(@RequestParam(name="id",required=true) String id) {
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    public Result<?>  delete(@PathVariable(name="id",required=true) String id) {
         boolean isSuccess = smartPermissionService.removeById(id);
         return isSuccess ? Result.success("删除成功") : Result.error("删除失败");
     }
