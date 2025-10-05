@@ -2,6 +2,7 @@ package com.smart.system.permission.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.smart.system.permission.entity.SmartPermission;
+import com.smart.system.permission.vo.RouterVo;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -36,5 +37,41 @@ public interface SmartPermissionService extends IService<SmartPermission> {
      * @return 角色标识列表
      */
     List<String> findRoleByUserId(String id);
+
+
+    /**
+     * 根据用户ID查询菜单权限树
+     *
+     * @param userId 用户ID
+     * @return 菜单权限树
+     */
+    List<SmartPermission> getMenuTreeByUserId(String userId);
+
+    /**
+     * 根据用户ID查询菜单权限列表
+     * 参考mengyuan项目的selectMenuTreeByUserId方法
+     *
+     * @param userId 用户ID
+     * @return 菜单权限列表
+     */
+    List<SmartPermission> selectMenuTreeByUserId(String userId);
+
+    /**
+     * 构建路由菜单
+     * 参考mengyuan项目的buildMenus方法
+     *
+     * @param menus 菜单权限列表
+     * @return 路由菜单列表
+     */
+    List<RouterVo> buildMenus(List<SmartPermission> menus);
+
+    /**
+     * 获取用户路由菜单
+     * 参考mengyuan项目的getRouters方法
+     *
+     * @return 路由菜单列表
+     */
+    List<RouterVo> getRouters();
+
 }
 

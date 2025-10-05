@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.smart.framework.common.util.MenuTreeUtil;
 import com.smart.framework.database.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,7 +22,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("smart_permission")
-public class SmartPermission extends BaseEntity {
+public class SmartPermission extends BaseEntity implements MenuTreeUtil.MenuPermission {
 
 
 
@@ -221,4 +222,15 @@ public class SmartPermission extends BaseEntity {
      */
     @TableField(exist = false)
     private List<SmartPermission> children;
+
+    // 实现MenuTreeUtil.MenuPermission接口的方法
+    @Override
+    public List<? extends MenuTreeUtil.MenuPermission> getChildren() {
+        return children;
+    }
+
+    @Override
+    public void setChildren(List<? extends MenuTreeUtil.MenuPermission> children) {
+        this.children = (List<SmartPermission>) children;
+    }
 }

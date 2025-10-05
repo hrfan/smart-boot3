@@ -7,17 +7,13 @@ import com.smart.framework.core.result.Result;
 import com.smart.framework.database.query.QueryBuilder;
 import com.smart.system.permission.entity.SmartPermission;
 import com.smart.system.permission.service.SmartPermissionService;
+import com.smart.system.permission.vo.RouterVo;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * 菜单权限控制器
@@ -30,11 +26,23 @@ import java.util.UUID;
 @RequestMapping("/system/permission")
 public class SmartPermissionController {
 
-    private static final Logger log = LoggerFactory.getLogger(SmartPermissionController.class);
-
     @Resource
     private SmartPermissionService smartPermissionService;
 
+
+
+
+    /**
+     * 获取路由信息
+     * 参考mengyuan项目的getRouters方法
+     *
+     * @return 路由信息
+     */
+    @GetMapping("getRouters")
+    public Result<List<RouterVo>> getRouters() {
+        List<RouterVo> routers = smartPermissionService.getRouters();
+        return Result.success("获取成功", routers);
+    }
 
     /**
      * 查询菜单权限分页列表

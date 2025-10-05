@@ -32,5 +32,14 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
       * @return 角色标识列表
       */
     List<String> findRoleByUserId(@Param("userId") String id);
+
+    /**
+     * 根据用户ID查询菜单权限列表
+     * 参考mengyuan项目的selectMenuTreeByUserId方法
+     *
+     * @param userId 用户ID
+     * @return 菜单权限列表
+     */
+    List<SmartPermission> selectMenuTreeByUserId(@Param("userId") String userId);
 }
 

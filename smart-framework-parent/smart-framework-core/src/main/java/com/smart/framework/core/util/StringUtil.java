@@ -249,4 +249,18 @@ public class StringUtil {
         }
         return str.substring(0, maxLength) + "...";
     }
+
+
+    /**
+     * 判断地址是否为http 或 https 协议
+     *
+     * @param link 地址
+     * @return 是否为http 或 https 协议
+     */
+    public static boolean isHttp(String link) {
+        if (StrUtil.isBlank(link)) {
+            return false;
+        }
+        return link.startsWith("http://") || link.startsWith("https://");
+    }
 }
