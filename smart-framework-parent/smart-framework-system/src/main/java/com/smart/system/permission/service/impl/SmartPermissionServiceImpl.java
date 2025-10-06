@@ -1,6 +1,7 @@
 package com.smart.system.permission.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.smart.framework.common.util.MenuTreeUtil;
 import com.smart.framework.common.util.SecurityUtils;
@@ -403,6 +404,23 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
             throw new ErrorException(ResultCode.ERROR, "无菜单权限");
         }
         return smartPermissions;
+    }
+
+
+
+    /**
+     * 根据parentId获取最大序号
+     * @param parentId 父菜单权限ID，用于指定要查询的父菜单权限
+     * @return 最大序号结果
+     */
+    @Override
+    public Integer getMaxSortNo(String parentId) {
+        // 从数据库查询最大序号
+        Integer maxSortNo = smartPermissionMapper.getMaxSortNo(parentId);
+        if (maxSortNo == null) {
+            maxSortNo = 0;
+        }
+        return maxSortNo + 1;
     }
 
     /**

@@ -49,5 +49,12 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
      * @return 菜单权限列表
      */
     List<SmartPermission> getList(SmartPermission smartPermission);
+
+    /**
+     * 根据父节点ID获取最大排序号
+     * @param parentId 父节点ID
+     * @return 最大排序号
+     */
+    Integer getMaxSortNo(@Param("parentId") String parentId);
 }
 

@@ -190,5 +190,24 @@
         order by p.order_num asc
     </select>
 
+
+        <!-- 根据父节点ID获取最大排序号 -->
+    <select id="getMaxSortNo" resultType="java.lang.Integer">
+        select max(p.order_num)
+        from smart_permission p
+        inner join smart_permission parent on p.parent_id = parent.id
+        <where>
+              p.parent_id = #{parentId}
+          and p.status = '0'
+          and p.visible = '0'
+          and case
+                when parent.menu_type = 'M' then p.menu_type in ('C')
+                when parent.menu_type = 'C' then p.menu_type in ('F')
+                else parent.menu_type in ('M', 'C', 'F')
+              end
+        </where>
+
+    </select>
+
 </mapper>
 

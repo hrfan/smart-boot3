@@ -157,6 +157,18 @@ public class SmartPermissionController {
     }
 
 
+    /**
+     * 根据parentId获取最大序号
+     * @param parentId 父菜单权限ID，用于指定要查询的父菜单权限
+     * @return 最大序号结果
+     */
+     @RequestMapping(value = "/getMaxSortNo/{parentId}", method = RequestMethod.GET)
+    public Result<Integer> getMaxSortNo(@PathVariable(name="parentId",required=true) String parentId) {
+        Integer maxSortNo = smartPermissionService.getMaxSortNo(parentId);
+        return Result.success("查询成功", maxSortNo);
+    }
+
+
 
 
 }

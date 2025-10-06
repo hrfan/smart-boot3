@@ -87,5 +87,12 @@ public interface SmartPermissionService extends IService<SmartPermission> {
      * @return 菜单权限列表
      */
     List<SmartPermission> getList(SmartPermission smartPermission);
+
+     /**
+     * 根据parentId获取最大序号
+     * @param parentId 父菜单权限ID，用于指定要查询的父菜单权限
+     * @return 最大序号结果
+     */
+    Integer getMaxSortNo(String parentId);
 }
 
