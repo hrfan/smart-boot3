@@ -48,7 +48,7 @@ public class SmartRole extends BaseEntity {
     private String dataScope;
 
     /**
-     * 菜单树选择项是否关联显示
+     * 菜单树选择项是否关联显示 0 不关联 1 关联
      */
     @TableField("menu_check_strictly")
     private Boolean menuCheckStrictly;

@@ -119,6 +119,53 @@
         order by p.order_num asc
     </select>
 
+
+    <!-- 根据用户ID查询菜单权限列表 -->
+    <select id="selectMenuListAllByUserId" resultMap="BaseResultMap">
+        select
+            distinct
+            p.id,
+            p.menu_name,
+            p.parent_id,
+            p.order_num,
+            p.path,
+            p.component,
+            p.query,
+            p.route_name,
+            p.is_frame,
+            p.frame_url,
+            p.is_cache,
+            p.menu_type,
+            p.visible,
+            p.status,
+            p.perms,
+            p.icon,
+            p.create_by,
+            p.create_time,
+            p.create_user_name,
+            p.update_by,
+            p.update_time,
+            p.update_user_name,
+            p.remark,
+            p.is_leaf,
+            p.always_show,
+            p.color,
+            p.default_shortcut_menu,
+            p.reminder_menu,
+            p.tenant_menu,
+            p.allow_visitor_access
+        from
+            smart_permission p
+                left join smart_role_permission rp on p.id = rp.permission_id
+                left join smart_role r on rp.role_id = r.id
+                left join smart_user_role ur on r.id = ur.role_id
+                left join smart_user u on ur.user_id = u.id
+        where u.id = #{userId}
+          and p.status = '0'
+          and p.menu_type in ('M', 'C', 'F')
+          and p.visible = '0'
+        order by p.order_num asc
+    </select>
     <!-- 根据查询条件获取菜单权限列表 -->
     <select id="getList" resultType="com.smart.system.permission.entity.SmartPermission">
         select
@@ -207,6 +254,19 @@
               end
         </where>
 
+    </select>
+
+
+
+    <select id="findPermissionByRoleId" resultType="java.lang.String">
+        select m.id
+        from smart_permission m
+        left join smart_role_permission rm on m.id = rm.permission_id
+        where rm.role_id = #{roleId}
+        <if test="menuCheckStrictly == false">
+            and m.id not in (select m.parent_id from smart_permission m inner join smart_role_permission rm on m.id = rm.permission_id and rm.role_id = #{roleId})
+        </if>
+        order by m.parent_id, m.order_num
     </select>
 
 </mapper>

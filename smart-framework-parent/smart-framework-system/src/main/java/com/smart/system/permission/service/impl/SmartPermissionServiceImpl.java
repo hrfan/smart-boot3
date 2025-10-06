@@ -6,12 +6,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.smart.framework.common.util.MenuTreeUtil;
 import com.smart.framework.common.util.SecurityUtils;
 import com.smart.framework.core.exception.ErrorException;
+import com.smart.framework.core.result.Result;
 import com.smart.framework.core.result.ResultCode;
 import com.smart.system.permission.entity.SmartPermission;
 import com.smart.system.permission.mapper.SmartPermissionMapper;
 import com.smart.system.permission.service.SmartPermissionService;
 import com.smart.system.permission.vo.MetaVo;
 import com.smart.system.permission.vo.RouterVo;
+import com.smart.system.permission.vo.TreeSelect;
+import com.smart.system.role.entiy.SmartRole;
+import com.smart.system.role.mapper.SmartRoleMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +40,9 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
 
     @Autowired
     private SmartPermissionMapper smartPermissionMapper;
+
+    @Autowired
+    private SmartRoleMapper smartRoleMapper;
 
 
 
@@ -421,6 +428,48 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
             maxSortNo = 0;
         }
         return maxSortNo + 1;
+    }
+
+
+
+     /**
+     * 根据角色id查询对应菜单权限列表
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 菜单权限列表结果
+     */
+    @Override
+    public Map<String, Object> getPermissionByRoleId(String roleId) {
+        HashMap<String, Object> map = new HashMap<>();
+        // 根据用户id获取当前菜单
+        String userId = SecurityUtils.getCurrentUserId();
+        List<SmartPermission> menus = smartPermissionMapper.selectMenuListAllByUserId(userId);
+
+        // 将menus转为树形结构
+        if (CollectionUtil.isEmpty(menus)) {
+            throw new ErrorException(ResultCode.ERROR, "用户无菜单权限");
+        }
+        // 构建树形结构
+        List<SmartPermission> menuTree = MenuTreeUtil.buildMenuTree(menus);
+
+        // 将菜单结构 转为 treeSelect 格式
+        List<TreeSelect> treeSelectList = SmartPermissionConvertTreeSelectService.buildTreeSelect(menuTree);
+
+        map.put("menus", treeSelectList);
+
+        // 获取角色信息
+        SmartRole role = smartRoleMapper.selectById(roleId);
+        if (role == null) {
+            throw new ErrorException(ResultCode.ERROR, "角色不存在");
+        }
+        map.put("role", role);
+        // 判断角色是否设置父子联动
+        Boolean menuCheckStrictly = role.getMenuCheckStrictly();
+
+        // 根据角色id获取 角色已经配置的菜单id，用于前端的回显
+        List<String> roleMenus = smartPermissionMapper.findPermissionByRoleId(roleId,menuCheckStrictly);
+        map.put("checkedKeys", roleMenus);
+
+        return map;
     }
 
     /**

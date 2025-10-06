@@ -42,6 +42,12 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
      */
     List<SmartPermission> selectMenuTreeByUserId(@Param("userId") String userId);
 
+     /**
+      * 根据用户ID查询所有菜单权限列表
+      * @param userId 用户ID
+      * @return 所有菜单权限列表
+      */
+    List<SmartPermission> selectMenuListAllByUserId(@Param("userId") String userId);
 
     /**
      * 根据查询条件获取菜单权限列表
@@ -56,5 +62,13 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
      * @return 最大排序号
      */
     Integer getMaxSortNo(@Param("parentId") String parentId);
+
+     /**
+      * 根据角色ID查询菜单权限ID列表
+      * @param roleId 角色ID
+      * @param menuCheckStrictly 角色是否设置父子联动 true 关联 false 不关联
+      * @return 菜单权限ID列表
+      */
+    List<String> findPermissionByRoleId(@Param("roleId") String roleId,@Param("menuCheckStrictly") Boolean menuCheckStrictly);
 }
 

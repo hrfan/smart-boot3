@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 菜单权限控制器
@@ -166,6 +167,18 @@ public class SmartPermissionController {
     public Result<Integer> getMaxSortNo(@PathVariable(name="parentId",required=true) String parentId) {
         Integer maxSortNo = smartPermissionService.getMaxSortNo(parentId);
         return Result.success("查询成功", maxSortNo);
+    }
+
+
+    /**
+     * 根据角色id查询对应菜单权限列表
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 菜单权限列表结果
+     */
+     @RequestMapping(value = "/getPermissionByRoleId/{roleId}", method = RequestMethod.GET)
+    public Result<Map<String, Object>> getPermissionByRoleId(@PathVariable(name="roleId",required=true) String roleId) {
+        Map<String, Object> map = smartPermissionService.getPermissionByRoleId(roleId);
+        return Result.success("查询成功", map);
     }
 
 

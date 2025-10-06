@@ -64,12 +64,11 @@ public class SmartRoleController {
 
     /**
      * 更新角色
-     * @param id 角色ID
      * @param params 角色实体对象，包含更新的角色信息
      * @return 操作结果，包含操作成功标志和操作结果数据
      */
-    @RequestMapping(value = "update/{id}", method = RequestMethod.PUT)
-    public Result<?> update(@PathVariable(name="id", required=true) String id, @RequestBody @Valid SmartRole params) {
+    @RequestMapping(value = "update", method = RequestMethod.PUT)
+    public Result<?> update(@RequestBody @Valid SmartRole params) {
         SmartRole smartRole = smartRoleService.update(params);
         return smartRole != null ? Result.success("更新成功", smartRole) : Result.error("更新失败");
     }
@@ -94,5 +93,18 @@ public class SmartRoleController {
     public Result<?> deleteBatch(@RequestBody @Valid List<String> ids) {
         boolean isSuccess = smartRoleService.removeByIds(ids);
         return isSuccess ? Result.success("删除成功") : Result.error("删除失败");
+    }
+
+
+
+    /**
+     * 根据ID查询角色详情
+     * @param id 角色ID，用于指定要查询的角色
+     * @return 操作结果，包含操作成功标志和操作结果数据
+     */
+    @RequestMapping(value = "/getRoleById/{id}", method = RequestMethod.GET)
+    public Result<SmartRole> get(@PathVariable(name="id", required=true) String id) {
+        SmartRole smartRole = smartRoleService.getById(id);
+        return smartRole != null ? Result.success("查询成功", smartRole) : Result.error("查询失败");
     }
 }

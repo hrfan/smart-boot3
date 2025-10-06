@@ -6,6 +6,7 @@ import com.smart.system.permission.vo.RouterVo;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 菜单权限表Service接口
@@ -94,5 +95,12 @@ public interface SmartPermissionService extends IService<SmartPermission> {
      * @return 最大序号结果
      */
     Integer getMaxSortNo(String parentId);
+
+     /**
+     * 根据角色id查询对应菜单权限列表
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 菜单权限列表结果
+     */
+     Map<String, Object> getPermissionByRoleId(String roleId);
 }
 
