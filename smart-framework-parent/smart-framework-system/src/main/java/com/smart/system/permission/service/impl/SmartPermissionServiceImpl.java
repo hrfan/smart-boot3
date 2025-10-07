@@ -16,6 +16,8 @@ import com.smart.system.permission.vo.RouterVo;
 import com.smart.system.permission.vo.TreeSelect;
 import com.smart.system.role.entiy.SmartRole;
 import com.smart.system.role.mapper.SmartRoleMapper;
+import com.smart.system.role_permission.entity.SmartRolePermission;
+import com.smart.system.role_permission.mapper.SmartRolePermissionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,9 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
 
     @Autowired
     private SmartRoleMapper smartRoleMapper;
+
+    @Autowired
+    private SmartRolePermissionMapper smartRolePermissionMapper;
 
 
 
@@ -442,7 +447,7 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
         HashMap<String, Object> map = new HashMap<>();
         // 获取当前所有菜单
         // String userId = SecurityUtils.getCurrentUserId();
-        List<SmartPermission> menus = smartPermissionMapper.selectMenuListAllByUserId(null);
+        List<SmartPermission> menus = smartPermissionMapper.getPermissionAllButtonByRoleId();
 
         // 将menus转为树形结构
         if (CollectionUtil.isEmpty(menus)) {
@@ -481,7 +486,7 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
     public List<TreeSelect> getTreeSelect() {
 // 获取当前所有菜单
         // String userId = SecurityUtils.getCurrentUserId();
-        List<SmartPermission> menus = smartPermissionMapper.selectMenuListAllByUserId(null);
+        List<SmartPermission> menus = smartPermissionMapper.getPermissionAllButtonByRoleId();
 
         // 将menus转为树形结构
         if (CollectionUtil.isEmpty(menus)) {
@@ -494,6 +499,74 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
         List<TreeSelect> treeSelectList = SmartPermissionConvertTreeSelectService.buildTreeSelect(menuTree);
         return treeSelectList;
     }
+
+
+
+    /**
+     * 根据角色id查询对应菜单权限列表（不包含按钮）
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 菜单权限列表结果
+     */
+    @Override
+    public Map<String, Object> getPermissionNoButtonByRoleId(String roleId) {
+        HashMap<String, Object> map = new HashMap<>();
+        // 获取当前所有菜单
+        // String userId = SecurityUtils.getCurrentUserId();
+        List<SmartPermission> menus = smartPermissionMapper.getPermissionNoButtonByRoleId(null);
+
+        // 将menus转为树形结构
+        if (CollectionUtil.isEmpty(menus)) {
+            throw new ErrorException(ResultCode.ERROR, "用户无菜单权限");
+        }
+        // 构建树形结构
+        List<SmartPermission> menuTree = MenuTreeUtil.buildMenuTree(menus);
+
+        // 将菜单结构 转为 treeSelect 格式
+        List<TreeSelect> treeSelectList = SmartPermissionConvertTreeSelectService.buildTreeSelect(menuTree);
+
+        map.put("menus", treeSelectList);
+
+        // 获取角色信息
+        SmartRole role = smartRoleMapper.selectById(roleId);
+        if (role == null) {
+            throw new ErrorException(ResultCode.ERROR, "角色不存在");
+        }
+        map.put("role", role);
+        // 判断角色是否设置父子联动
+        Boolean menuCheckStrictly = role.getMenuCheckStrictly();
+
+        // 根据角色id获取 角色已经配置的菜单id，用于前端的回显
+        List<String> roleMenus = smartPermissionMapper.findPermissionNoButtonByRoleId(roleId,menuCheckStrictly);
+        map.put("checkedKeys", roleMenus);
+
+        return map;
+    }
+
+
+
+    /**
+     * 根据角色ID和权限ID查询按钮权限列表
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @param permissionId 权限ID，用于指定要查询的权限
+     * @return 按钮权限列表结果
+     */
+    @Override
+    public Map<String, Object> getButtonListByPermissionId(String roleId, String permissionId) {
+        HashMap<String, Object> map = new HashMap<>();
+        // 获取当前权限对应的所有按钮列表
+        LambdaQueryWrapper<SmartPermission> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SmartPermission::getParentId, permissionId);
+        queryWrapper.eq(SmartPermission::getMenuType,"F");
+        List<SmartPermission> smartPermissions = smartPermissionMapper.selectList(queryWrapper);
+        map.put("menus", smartPermissions);
+
+
+        // 根据角色ID + 权限ID获取当前角色已经配置的按钮id，用于前端的回显
+        List<String> roleButtons = smartPermissionMapper.getPermissionButtonByRoleIdAndPermissionId(roleId, permissionId);
+        map.put("checkedKeys", roleButtons);
+        return map;
+    }
+
 
     /**
      * 根据父节点的ID获取所有子节点

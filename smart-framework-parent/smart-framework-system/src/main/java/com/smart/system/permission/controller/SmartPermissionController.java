@@ -183,6 +183,33 @@ public class SmartPermissionController {
     }
 
 
+
+    /**
+     * 根据角色id查询对应菜单权限列表 不包含按钮
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 菜单权限列表结果
+     */
+    @RequestMapping(value = "/getPermissionNoButtonByRoleId/{roleId}", method = RequestMethod.GET)
+    public Result<Map<String, Object>> getPermissionNoButtonByRoleId(@PathVariable(name="roleId",required=true) String roleId) {
+        Map<String, Object> map = smartPermissionService.getPermissionNoButtonByRoleId(roleId);
+        return Result.success("查询成功", map);
+    }
+
+
+    /**
+     * 根据角色id和权限id查询对应按钮详情列表
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @param permissionId 权限ID，用于指定要查询的权限
+     * @return 按钮详情列表结果(保存当前角色已经分配的按钮权限)
+     */
+     @RequestMapping(value = "/getButtonListByPermissionId/{roleId}/{permissionId}", method = RequestMethod.GET)
+    public Result<Map<String, Object>> getButtonListByPermissionId(@PathVariable(name="roleId",required=true) String roleId,
+                                                                   @PathVariable(name="permissionId",required=true) String permissionId) {
+         Map<String, Object> map = smartPermissionService.getButtonListByPermissionId(roleId, permissionId);
+        return Result.success("查询成功", map);
+    }
+
+
     /**
      * 获取所有的权限列表
      * @return 所有的权限列表结果

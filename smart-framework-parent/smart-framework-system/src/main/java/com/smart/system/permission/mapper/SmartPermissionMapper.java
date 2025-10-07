@@ -42,12 +42,12 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
      */
     List<SmartPermission> selectMenuTreeByUserId(@Param("userId") String userId);
 
-     /**
-      * 根据用户ID查询所有菜单权限列表
-      * @param userId 用户ID
-      * @return 所有菜单权限列表
-      */
-    List<SmartPermission> selectMenuListAllByUserId(@Param("userId") String userId);
+
+    /**
+     * 获取所有权限列表（包含按钮权限）
+     * @return 所有权限列表
+     */
+    List<SmartPermission> getPermissionAllButtonByRoleId();
 
     /**
      * 根据查询条件获取菜单权限列表
@@ -70,5 +70,28 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
       * @return 菜单权限ID列表
       */
     List<String> findPermissionByRoleId(@Param("roleId") String roleId,@Param("menuCheckStrictly") Boolean menuCheckStrictly);
+
+     /**
+      * 根据角色ID查询菜单权限列表 不包含按钮权限
+      * @param roleId 角色ID
+      * @return 菜单权限列表
+      */
+    List<SmartPermission> getPermissionNoButtonByRoleId(@Param("roleId") String roleId);
+
+     /**
+      * 根据角色ID查询菜单权限ID列表 不包含按钮权限
+      * @param roleId 角色ID
+      * @param menuCheckStrictly 角色是否设置父子联动 true 关联 false 不关联
+      * @return 菜单权限ID列表
+      */
+    List<String> findPermissionNoButtonByRoleId(@Param("roleId") String roleId,@Param("menuCheckStrictly") Boolean menuCheckStrictly);
+
+     /**
+      * 根据角色ID和权限ID查询按钮权限ID列表
+      * @param roleId 角色ID
+      * @param permissionId 权限ID
+      * @return 按钮权限ID列表
+      */
+    List<String> getPermissionButtonByRoleIdAndPermissionId(@Param("roleId") String roleId, @Param("permissionId") String permissionId);
 }
 
