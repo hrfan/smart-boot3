@@ -28,6 +28,28 @@
         status, del_flag, create_by, create_time, update_by, update_time, remark, tenant_id
     </sql>
 
+    <!-- 批量插入角色权限关联信息 -->
+    <insert id="batchInsertRolePermission" parameterType="java.util.Map">
+        INSERT INTO smart_role_permission (id,role_id, permission_id)
+        VALUES
+        <foreach collection="permissionIds" item="permissionId" separator=",">
+            (uuid(), #{roleId}, #{permissionId})
+        </foreach>
+    </insert>
+
+    <!-- 根据角色ID删除中间表权限信息 -->
+    <delete id="deletePermissionByRoleId" parameterType="java.lang.String">
+        DELETE FROM smart_role_permission WHERE role_id = #{roleId}
+    </delete>
+
+    <!-- 批量删除角色权限关联信息 -->
+    <delete id="deletePermissionByRoleIds" parameterType="java.util.List">
+        DELETE FROM smart_role_permission WHERE role_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
     <!-- 根据角色名称查询角色信息 -->
     <select id="selectByRoleName" parameterType="java.lang.String" resultMap="BaseResultMap">
         SELECT

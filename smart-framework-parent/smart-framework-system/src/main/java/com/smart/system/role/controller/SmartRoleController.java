@@ -75,12 +75,14 @@ public class SmartRoleController {
 
     /**
      * 删除角色
-     * @param id 角色ID，用于指定要删除的角色
+     * @param ids 角色ID，用于指定要删除的角色
      * @return 操作结果，包含操作成功标志和操作结果数据
      */
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public Result<?> delete(@RequestParam(name="id", required=true) String id) {
-        boolean isSuccess = smartRoleService.removeById(id);
+    @RequestMapping(value = "/delete/{ids}", method = RequestMethod.DELETE)
+    public Result<?> delete(@PathVariable(name="ids", required=true) String ids) {
+        // 解析ids参数，将其转换为角色ID列表
+        List<String> roleIds = List.of(ids.split(","));
+        boolean isSuccess = smartRoleService.deleteRoleByIds(roleIds);
         return isSuccess ? Result.success("删除成功") : Result.error("删除失败");
     }
 

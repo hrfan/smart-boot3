@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -127,5 +128,12 @@ public class SmartRole extends BaseEntity {
      */
      @TableField(value = "tenant_id")
     private String tenantId;
+
+
+    /**
+     * 权限ids集合
+     */
+    @TableField(exist = false)
+    private List<String> permissionIds;
 
 }

@@ -160,10 +160,13 @@
                 left join smart_role r on rp.role_id = r.id
                 left join smart_user_role ur on r.id = ur.role_id
                 left join smart_user u on ur.user_id = u.id
-        where u.id = #{userId}
-          and p.status = '0'
+        where
+              p.status = '0'
           and p.menu_type in ('M', 'C', 'F')
           and p.visible = '0'
+          <if test="userId != null and userId != ''">
+              and  u.id = #{userId}
+          </if>
         order by p.order_num asc
     </select>
     <!-- 根据查询条件获取菜单权限列表 -->

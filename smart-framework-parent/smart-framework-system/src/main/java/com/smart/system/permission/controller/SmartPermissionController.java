@@ -9,6 +9,7 @@ import com.smart.framework.database.query.QueryBuilder;
 import com.smart.system.permission.entity.SmartPermission;
 import com.smart.system.permission.service.SmartPermissionService;
 import com.smart.system.permission.vo.RouterVo;
+import com.smart.system.permission.vo.TreeSelect;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -181,6 +182,16 @@ public class SmartPermissionController {
         return Result.success("查询成功", map);
     }
 
+
+    /**
+     * 获取所有的权限列表
+     * @return 所有的权限列表结果
+     */
+     @RequestMapping(value = "/treeSelect", method = RequestMethod.GET)
+    public Result<List<TreeSelect>> listAll() {
+         List<TreeSelect> list = smartPermissionService.getTreeSelect();
+         return Result.success("查询成功", list);
+    }
 
 
 

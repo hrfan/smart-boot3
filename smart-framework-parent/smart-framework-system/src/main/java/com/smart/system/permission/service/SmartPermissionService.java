@@ -3,6 +3,7 @@ package com.smart.system.permission.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.smart.system.permission.entity.SmartPermission;
 import com.smart.system.permission.vo.RouterVo;
+import com.smart.system.permission.vo.TreeSelect;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -102,5 +103,14 @@ public interface SmartPermissionService extends IService<SmartPermission> {
      * @return 菜单权限列表结果
      */
      Map<String, Object> getPermissionByRoleId(String roleId);
+
+
+
+     /**
+     * 获取所有菜单权限树(将数据返回格式转为treeSelect格式)
+     * 用于前端的树选择组件展示
+     * @return 菜单权限树
+     */
+    List<TreeSelect> getTreeSelect();
 }
 

@@ -3,6 +3,8 @@ package com.smart.system.role.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.smart.system.role.entiy.SmartRole;
 
+import java.util.List;
+
 /**
  * 角色信息表Service接口
  * 定义角色业务逻辑层接口
@@ -25,4 +27,18 @@ public interface SmartRoleService extends IService<SmartRole> {
      * @return 更新后的角色对象
      */
     SmartRole update(SmartRole smartRole);
+
+    /**
+     * 删除角色
+     * @param id 角色ID，用于指定要删除的角色
+     * @return 删除操作影响的行数
+     */
+    Boolean deleteRoleById(String id);
+
+     /**
+     * 批量删除角色
+     * @param ids 角色ID列表，用于指定要删除的多个角色
+     * @return 删除操作影响的行数
+     */
+    boolean deleteRoleByIds(List<String> ids);
 }

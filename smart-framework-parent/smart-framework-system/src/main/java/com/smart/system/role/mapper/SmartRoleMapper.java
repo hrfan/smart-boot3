@@ -89,4 +89,30 @@ public interface SmartRoleMapper extends BaseMapper<SmartRole> {
      * @return 更新数量
      */
     int updateRoleStatus(@Param("roleId") String roleId, @Param("status") String status);
+
+
+    /**
+     * 根据角色ID删除中间表权限信息
+     *
+     * @param roleId 角色ID
+     * @return 删除数量
+     */
+    int deletePermissionByRoleId(@Param("roleId") String roleId);
+
+    /**
+     * 批量插入角色权限关联信息
+     *
+     * @param roleId 角色ID
+     * @param permissionIds 权限ID列表
+     * @return 插入数量
+     */
+    int batchInsertRolePermission(@Param("roleId") String roleId, @Param("permissionIds") List<String> permissionIds);
+
+    /**
+     * 批量删除角色权限关联信息
+     *
+     * @param ids 角色ID列表
+     * @return 删除数量
+     */
+    int deletePermissionByRoleIds(@Param("ids") List<String> ids);
 }

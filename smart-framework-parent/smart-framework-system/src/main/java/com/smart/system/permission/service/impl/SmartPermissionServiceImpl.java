@@ -440,9 +440,9 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
     @Override
     public Map<String, Object> getPermissionByRoleId(String roleId) {
         HashMap<String, Object> map = new HashMap<>();
-        // 根据用户id获取当前菜单
-        String userId = SecurityUtils.getCurrentUserId();
-        List<SmartPermission> menus = smartPermissionMapper.selectMenuListAllByUserId(userId);
+        // 获取当前所有菜单
+        // String userId = SecurityUtils.getCurrentUserId();
+        List<SmartPermission> menus = smartPermissionMapper.selectMenuListAllByUserId(null);
 
         // 将menus转为树形结构
         if (CollectionUtil.isEmpty(menus)) {
@@ -470,6 +470,29 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
         map.put("checkedKeys", roleMenus);
 
         return map;
+    }
+
+    /**
+     * 获取所有菜单权限树(将数据返回格式转为treeSelect格式)
+     * 用于前端的树选择组件展示
+     * @return 菜单权限树
+     */
+    @Override
+    public List<TreeSelect> getTreeSelect() {
+// 获取当前所有菜单
+        // String userId = SecurityUtils.getCurrentUserId();
+        List<SmartPermission> menus = smartPermissionMapper.selectMenuListAllByUserId(null);
+
+        // 将menus转为树形结构
+        if (CollectionUtil.isEmpty(menus)) {
+            throw new ErrorException(ResultCode.ERROR, "用户无菜单权限");
+        }
+        // 构建树形结构
+        List<SmartPermission> menuTree = MenuTreeUtil.buildMenuTree(menus);
+
+        // 将菜单结构 转为 treeSelect 格式
+        List<TreeSelect> treeSelectList = SmartPermissionConvertTreeSelectService.buildTreeSelect(menuTree);
+        return treeSelectList;
     }
 
     /**
