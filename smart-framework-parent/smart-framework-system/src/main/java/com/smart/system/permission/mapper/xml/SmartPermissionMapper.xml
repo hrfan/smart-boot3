@@ -332,5 +332,16 @@
     </select>
 
 
+    <select id="getRolePermissionsButtonById" resultType="java.lang.String">
+        select p.id
+        from smart_permission p
+        left join smart_role_permission rm on p.id = rm.permission_id
+        where rm.role_id = #{roleId}
+        and p.status = '0'
+        and p.visible = '0'
+        and p.menu_type = 'F'
+    </select>
+
+
 </mapper>
 

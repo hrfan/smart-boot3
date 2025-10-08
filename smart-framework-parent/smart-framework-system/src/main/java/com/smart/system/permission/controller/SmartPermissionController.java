@@ -220,6 +220,35 @@ public class SmartPermissionController {
          return Result.success("查询成功", list);
     }
 
+    /**
+     * 根据菜单ID列表查询所有相关的按钮权限ID
+     * @param menuIds 菜单ID列表，用于指定要查询的多个菜单
+     * @return 所有相关的按钮权限ID列表
+     */
+    @GetMapping("/getAllButtonPermissionsByMenuIds")
+    public Result<List<String>> getAllButtonPermissionsByMenuIds(@RequestParam String menuIds) {
+        // 根据菜单ID列表，一次性查询所有相关的按钮权限
+        List<String> buttonIds = smartPermissionService.getAllButtonIdsByMenuIds(menuIds);
+        return Result.success(buttonIds);
+    }
+
+
+    /**
+     * 根据角色Id 获取对应的权限列表id
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 所有相关的权限ID列表(仅按钮)
+     */
+    @GetMapping("/getRolePermissionsButtonById")
+    public Result<List<String>> getRolePermissionsButtonById(@RequestParam String roleId) {
+        // 根据角色ID，一次性查询所有相关的权限ID(仅按钮)
+        List<String> permissionIds = smartPermissionService.getRolePermissionsButtonById(roleId);
+        return Result.success(permissionIds);
+    }
+
+
+
+
+
 
 
 }

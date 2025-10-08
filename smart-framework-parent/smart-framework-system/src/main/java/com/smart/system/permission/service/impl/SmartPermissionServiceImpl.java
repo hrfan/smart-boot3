@@ -569,6 +569,38 @@ public class SmartPermissionServiceImpl extends ServiceImpl<SmartPermissionMappe
 
 
     /**
+     * 根据菜单ID列表查询所有相关的按钮权限ID
+     * @param menuIds 菜单ID列表，用于指定要查询的多个菜单
+     * @return 所有相关的按钮权限ID列表
+     */
+    @Override
+    public List<String> getAllButtonIdsByMenuIds(String menuIds) {
+
+        // menuIds时多个字符串拼接的 ，1,23,4
+        LambdaQueryWrapper<SmartPermission> queryWrapper = new LambdaQueryWrapper<SmartPermission>()
+                .in(SmartPermission::getParentId, menuIds.split(","))
+                .eq(SmartPermission::getMenuType, "F");
+        // 根据菜单ID列表查询所有相关的按钮权限ID
+        List<SmartPermission> smartPermissions = smartPermissionMapper.selectList(queryWrapper);
+        List<String> buttonIds = smartPermissions.stream()
+                .map(SmartPermission::getId)
+                .collect(Collectors.toList());
+        return buttonIds;
+    }
+
+    /**
+     * 根据角色ID查询所有相关的按钮权限ID
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 所有相关的按钮权限ID列表
+     */
+    @Override
+    public List<String> getRolePermissionsButtonById(String roleId) {
+        List<String> buttonIds = smartPermissionMapper.getRolePermissionsButtonById(roleId);
+        return buttonIds;
+    }
+
+
+    /**
      * 根据父节点的ID获取所有子节点
      * 参考mengyuan项目的getChildPerms方法
      * 

@@ -93,5 +93,12 @@ public interface SmartPermissionMapper extends BaseMapper<SmartPermission> {
       * @return 按钮权限ID列表
       */
     List<String> getPermissionButtonByRoleIdAndPermissionId(@Param("roleId") String roleId, @Param("permissionId") String permissionId);
+
+    /**
+     * 根据角色ID查询所有相关的按钮权限ID
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 所有相关的按钮权限ID列表
+     */
+    List<String> getRolePermissionsButtonById(@Param("roleId") String roleId);
 }
 

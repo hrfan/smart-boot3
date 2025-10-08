@@ -129,5 +129,21 @@ public interface SmartPermissionService extends IService<SmartPermission> {
      * @return 按钮详情列表结果(保存当前角色已经分配的按钮权限)
      */
     Map<String, Object> getButtonListByPermissionId(String roleId, String permissionId);
+
+
+     /**
+     * 根据菜单ID列表查询所有相关的按钮权限ID
+     * @param menuIds 菜单ID列表，用于指定要查询的多个菜单
+     * @return 所有相关的按钮权限ID列表
+     */
+    List<String> getAllButtonIdsByMenuIds(String menuIds);
+
+
+     /**
+     * 根据角色ID查询所有相关的按钮权限ID
+     * @param roleId 角色ID，用于指定要查询的角色
+     * @return 所有相关的按钮权限ID列表
+     */
+    List<String> getRolePermissionsButtonById(String roleId);
 }
 
