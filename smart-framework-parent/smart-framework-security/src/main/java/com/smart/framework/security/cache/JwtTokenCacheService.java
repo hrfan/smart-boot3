@@ -79,6 +79,29 @@ public class JwtTokenCacheService {
     }
 
     /**
+     * 获取缓存中的Token
+     * 
+     * @param token JWT Token
+     * @return 缓存中的Token
+     */
+    public String getCachedToken(String token) {
+        if (!cacheConfig.isEnabled()) {
+            log.debug("JWT Token缓存功能已禁用，跳过缓存获取: {}", token);
+            return null;
+        }
+
+        try {
+            String key = TOKEN_CACHE_PREFIX + token;
+            String cachedToken = redisService.get(key, String.class);
+            log.debug("JWT Token缓存获取结果: {}, 缓存值: {}", token, cachedToken);
+            return cachedToken;
+        } catch (Exception e) {
+            log.error("从Redis缓存获取JWT Token失败: {}", token, e);
+            return null;
+        }
+    }
+
+    /**
      * 刷新Token缓存
      * 程序会给token对应的k映射的v值重新生成JWTToken并覆盖v值，该缓存生命周期重新计算
      * 

@@ -1,5 +1,7 @@
 package com.smart.framework.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smart.framework.core.result.Result;
 import com.smart.framework.security.cache.JwtTokenCacheService;
 import com.smart.framework.security.service.CustomUserDetailsService;
 import com.smart.framework.security.util.JwtUtil;
@@ -45,12 +47,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
     private final JwtTokenCacheService jwtTokenCacheService;
+    private final ObjectMapper objectMapper;
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService, 
-                                  JwtTokenCacheService jwtTokenCacheService) {
+                                  JwtTokenCacheService jwtTokenCacheService, ObjectMapper objectMapper) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.jwtTokenCacheService = jwtTokenCacheService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -61,40 +65,66 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = extractJwtFromRequest(request);
             
             if (StringUtils.isNotBlank(jwt)) {
-                String username = jwtUtil.getUsernameFromToken(jwt);
-                
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // 1. 首先检查Token是否有效（未过期）
+                if (jwtUtil.validateToken(jwt)) {
+                    // Token有效，正常认证流程
+                    String username = jwtUtil.getUsernameFromToken(jwt);
                     
-                    // 1. 首先检查Token是否有效（未过期）
-                    if (jwtUtil.validateToken(jwt)) {
-                        // Token有效，正常认证流程
+                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                         authenticateUser(request, jwt, username);
                         log.debug("用户 {} Token有效，认证成功", username);
-                        
-                    } else {
-                        // 2. Token已过期，检查缓存中是否存在
-                        if (jwtTokenCacheService.isTokenCached(jwt)) {
-                            // 3. Token过期但缓存中存在，表示用户一直在操作，清空用户信息要求重新登录
-                            log.warn("用户 {} Token已过期但缓存中存在，清空用户信息要求重新登录", username);
-                            clearUserAuthentication(username);
+                    }
+                    
+                } else {
+                    // 2. Token已过期，先尝试获取用户名（可能抛出异常）
+                    String username = null;
+                    try {
+                        username = jwtUtil.getUsernameFromToken(jwt);
+                    } catch (Exception e) {
+                        log.warn("Token已过期且无法解析用户名: {}", e.getMessage());
+                    }
+                    
+                    // 3. Token已过期，检查缓存中是否存在
+                    String cachedToken = jwtTokenCacheService.getCachedToken(jwt);
+                    if (cachedToken != null) {
+                        // 4. Token过期但缓存中存在，需要进一步校验缓存中的token
+                        if (cachedToken.equals(jwt)) {
+                            // 缓存中的token与当前token一致，表示用户一直在操作只是JWT的token失效了
+                            log.warn("用户 {} Token已过期但缓存中存在且一致，表示用户一直在操作只是JWT的token失效了", username);
+                            if (username != null) {
+                                clearUserAuthentication(username);
+                            }
                             
-                            // 返回401状态码，要求重新登录
+                            // 返回用户信息已失效，请重新登录
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json;charset=UTF-8");
-                            response.getWriter().write("{\"code\":401,\"message\":\"用户信息已失效，请重新登录\"}");
+                            response.getWriter().write(objectMapper.writeValueAsString(Result.error(401, "用户信息已失效，请重新登录")));
                             return;
-                            
                         } else {
-                            // 4. Token过期且缓存中不存在，表示用户账户空闲超时
-                            log.warn("用户 {} Token已过期且缓存中不存在，用户账户空闲超时", username);
-                            clearUserAuthentication(username);
+                            // 缓存中的token与当前token不一致，可能是伪造的token
+                            log.warn("用户 {} Token已过期且缓存中的token不一致，可能是伪造token", username);
+                            if (username != null) {
+                                clearUserAuthentication(username);
+                            }
                             
-                            // 返回401状态码，要求重新登录
+                            // 返回用户信息已失效，请重新登录
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json;charset=UTF-8");
-                            response.getWriter().write("{\"code\":401,\"message\":\"用户信息已失效，请重新登录\"}");
+                            response.getWriter().write(objectMapper.writeValueAsString(Result.error(401, "用户信息已失效，请重新登录")));
                             return;
                         }
+                    } else {
+                        // 5. Token过期且缓存中不存在，表示用户账户空闲超时
+                        log.warn("用户 {} Token已过期且缓存中不存在，表示用户账户空闲超时", username);
+                        if (username != null) {
+                            clearUserAuthentication(username);
+                        }
+                        
+                        // 返回用户信息已失效，请重新登录
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write(objectMapper.writeValueAsString(Result.error(401, "用户信息已失效，请重新登录")));
+                        return;
                     }
                 }
             }
