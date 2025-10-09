@@ -109,4 +109,14 @@ public class SmartRoleController {
         SmartRole smartRole = smartRoleService.getById(id);
         return smartRole != null ? Result.success("查询成功", smartRole) : Result.error("查询失败");
     }
+
+
+    /**
+     * 启用角色
+     */
+    @PutMapping("/changeStatus")
+    public Result<?> changeStatus(@RequestBody  SmartRole params) {
+        boolean isSuccess = smartRoleService.changeStatus(params);
+        return isSuccess ? Result.success("更新成功") : Result.error("更新失败");
+    }
 }

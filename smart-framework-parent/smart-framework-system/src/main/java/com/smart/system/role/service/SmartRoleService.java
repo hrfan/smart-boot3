@@ -2,6 +2,7 @@ package com.smart.system.role.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.smart.system.role.entiy.SmartRole;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -41,4 +42,11 @@ public interface SmartRoleService extends IService<SmartRole> {
      * @return 删除操作影响的行数
      */
     boolean deleteRoleByIds(List<String> ids);
+
+    /**
+     * 启用/禁用角色
+     * @param params 角色实体对象，包含角色ID和状态
+     * @return 更新操作是否成功
+     */
+    boolean changeStatus(SmartRole params);
 }

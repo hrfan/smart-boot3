@@ -114,4 +114,30 @@ public class SmartRoleServiceImpl extends ServiceImpl<SmartRoleMapper, SmartRole
         }
         return false;
     }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean changeStatus(SmartRole params) {
+        if (params == null || params.getId() == null) {
+            return false;
+        }
+        // 从spring security获取当前登录用户ID
+        String username = SecurityUtils.getCurrentUsername();
+
+        // UPDATE smart_role
+        // SET
+        //    status = ?,
+        //    update_by = ?,
+        //    update_user_name = ?,
+        //    update_time = ?
+        // WHERE id = ?;
+        boolean update = lambdaUpdate().eq(SmartRole::getId, params.getId())
+                .set(SmartRole::getStatus, params.getStatus())
+                .set(SmartRole::getUpdateBy, username)
+                .set(SmartRole::getUpdateUserName, username)
+                .set(SmartRole::getUpdateTime, new Date())
+                .update();
+        return update;
+    }
 }
