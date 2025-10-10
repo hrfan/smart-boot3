@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smart.system.org.mapper.SmartOrgMapper">
+
+    <!-- 组织信息表结果映射 -->
+    <resultMap id="BaseResultMap" type="com.smart.system.org.entity.SmartOrg">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="parent_id" property="parentId" jdbcType="VARCHAR"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="sub_org_num" property="subOrgNum" jdbcType="INTEGER"/>
+        <result column="org_name" property="orgName" jdbcType="VARCHAR"/>
+        <result column="org_code" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="org_name_abbr" property="orgNameAbbr" jdbcType="VARCHAR"/>
+        <result column="org_order" property="orgOrder" jdbcType="INTEGER"/>
+        <result column="org_type" property="orgType" jdbcType="VARCHAR"/>
+        <result column="leader" property="leader" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="CHAR"/>
+        <result column="del_flag" property="delFlag" jdbcType="CHAR"/>
+        <result column="sys_org_code" property="sysOrgCode" jdbcType="VARCHAR"/>
+        <result column="comp_code" property="compCode" jdbcType="VARCHAR"/>
+        <result column="social_credit_code" property="socialCreditCode" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="VARCHAR"/>
+        <result column="ip_white" property="ipWhite" jdbcType="CHAR"/>
+        <result column="ip_address" property="ipAddress" jdbcType="LONGVARCHAR"/>
+        <result column="enable_password_expiration" property="enablePasswordExpiration" jdbcType="CHAR"/>
+        <result column="password_expired_day" property="passwordExpiredDay" jdbcType="VARCHAR"/>
+        <result column="password_expired_alert_day" property="passwordExpiredAlertDay" jdbcType="VARCHAR"/>
+        <result column="lock_user" property="lockUser" jdbcType="CHAR"/>
+        <result column="lock_black_password" property="lockBlackPassword" jdbcType="CHAR"/>
+        <result column="multiple_login" property="multipleLogin" jdbcType="CHAR"/>
+        <result column="large_screen_address" property="largeScreenAddress" jdbcType="VARCHAR"/>
+        <result column="home_page_address" property="homePageAddress" jdbcType="VARCHAR"/>
+        <result column="charge_notice" property="chargeNotice" jdbcType="CHAR"/>
+        <result column="force_change_pass" property="forceChangePass" jdbcType="CHAR"/>
+        <result column="show_water_mark" property="showWaterMark" jdbcType="CHAR"/>
+        <result column="factory_code" property="factoryCode" jdbcType="VARCHAR"/>
+        <result column="enable_customer" property="enableCustomer" jdbcType="VARCHAR"/>
+        <result column="portlet_code" property="portletCode" jdbcType="VARCHAR"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="create_user_name" property="createUserName" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, parent_id, path, sub_org_num, org_name, org_code, org_name_abbr, org_order, 
+        org_type, leader, phone, email, status, del_flag, sys_org_code, comp_code, 
+        social_credit_code, tenant_id, ip_white, ip_address, enable_password_expiration, 
+        password_expired_day, password_expired_alert_day, lock_user, lock_black_password, 
+        multiple_login, large_screen_address, home_page_address, charge_notice, 
+        force_change_pass, show_water_mark, factory_code, enable_customer, portlet_code, 
+        create_by, create_time, create_user_name, update_by, update_time, update_user_name
+    </sql>
+
+</mapper>
